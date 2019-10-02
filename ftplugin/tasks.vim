@@ -1,8 +1,8 @@
 " Tasks plugin
 " Language:    Tasks
 " Maintainer:  CrispyDrone
-" Last Change: Sep 10, 2019
-" Version:	   0.2
+" Last Change: Oct 02, 2019
+" Version:	   0.14
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -35,6 +35,7 @@ call s:initVariable('g:TasksMarkerCancelled', '✘')
 call s:initVariable('g:TasksDateFormat', '%Y-%m-%d %H:%M')
 call s:initVariable('g:TasksAttributeMarker', '@')
 call s:initVariable('g:TasksArchiveSeparator', '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿')
+call s:initVariable('g:TasksHeaderArchive', 'Archive')
 
 let b:regesc = '[]()?.*@='
 
@@ -45,6 +46,8 @@ let s:regDone = g:TasksAttributeMarker . 'done'
 let s:regCancelled = g:TasksAttributeMarker . 'cancelled'
 let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
 let s:dateFormat = g:TasksDateFormat
+let s:archiveSeparator = g:TasksArchiveSeparator
+let s:regArchive = g:TasksHeaderArchive . ':'
 
 function! Trim(input_string)
   return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
@@ -52,18 +55,40 @@ endfunction
 
 " Checks whether the specified linenumber is associated with a project.
 function! BelongsToProject(lineNumber)
-  let l:lineNumber = max([0, a:lineNumber])
+  let l:lineNumber = a:lineNumber
+
+  if (BelongsToArchive(l:lineNumber))
+    return 0
+  endif
 
   while l:lineNumber > 0
     let l:line = getline(l:lineNumber)
     let l:isMatch = match(l:line, s:regProject)
 
-    if l:isMatch > -1
-      return 1
+    if (l:isMatch == -1)
+      let l:lineNumber = l:lineNumber - 1
+      continue
+    endif
+
+    return 1
+  endwhile
+
+  return 0
+endfunc
+
+function! BelongsToArchive(lineNumber)
+  let l:lineNumber = a:lineNumber
+
+  while l:lineNumber > 0
+    let l:line = Trim(getline(l:lineNumber))
+
+    if (l:line ==# s:archiveSeparator)
+      if (Trim(getline(l:lineNumber + 1)) ==# s:regArchive)
+	return 1
+      endif
     endif
 
     let l:lineNumber = l:lineNumber - 1
-
   endwhile
 
   return 0
@@ -205,15 +230,15 @@ endfunc
 
 " Checks whether a specific line has been marked as done or cancelled.
 function! IsCompleted(line)
-	if match(a:line, s:regDone) > -1
-		return 1
-	endif
+  if match(a:line, s:regDone) > -1
+    return 1
+  endif
 
-	if match(a:line, s:regCancelled) > -1
-		return 1
-	endif
+  if match(a:line, s:regCancelled) > -1
+    return 1
+  endif
 
-	return 0
+  return 0
 endfunc
 
 function! TasksArchive()
