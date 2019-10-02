@@ -1,9 +1,9 @@
 " Tasks plugin
 " Language:    Tasks
-" Maintainer:  Chris Rolfs
-" Last Change: Aug 7, 2015
-" Version:	   0.1
-" URL:         https://github.com/irrationalistic/vim-tasks
+" Maintainer:  CrispyDrone
+" Last Change: Sep 10, 2019
+" Version:	   0.2
+" URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
   finish
@@ -11,11 +11,11 @@ endif
 let b:loaded_tasks = 1
 
 " MAPPINGS
-nnoremap <buffer> <leader>n :call NewTask(1)<cr>
-nnoremap <buffer> <leader>N :call NewTask(-1)<cr>
-nnoremap <buffer> <leader>d :call TaskComplete()<cr>
-nnoremap <buffer> <leader>x :call TaskCancel()<cr>
-nnoremap <buffer> <leader>a :call TasksArchive()<cr>
+nnoremap <buffer> <localleader>n :call NewTask(1)<cr>
+nnoremap <buffer> <localleader>N :call NewTask(-1)<cr>
+nnoremap <buffer> <localleader>d :call TaskComplete()<cr>
+nnoremap <buffer> <localleader>x :call TaskCancel()<cr>
+nnoremap <buffer> <localleader>a :call TasksArchive()<cr>
 
 " GLOBALS
 
