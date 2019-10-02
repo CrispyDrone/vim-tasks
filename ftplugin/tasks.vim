@@ -2,13 +2,13 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Last Change: Oct 02, 2019
-" Version:	   0.14
+" Version:	   0.15
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
   finish
 endif
-let b:loaded_tasks = 1
+let b:loaded_tasks = v:true
 
 " MAPPINGS
 nnoremap <buffer> <localleader>n :call NewTask(1)<cr>
@@ -24,9 +24,9 @@ nnoremap <buffer> <localleader>a :call TasksArchive()<cr>
 function! s:initVariable(var, value)
   if !exists(a:var)
     exec 'let ' . a:var . ' = ' . "'" . substitute(a:value, "'", "''", "g") . "'"
-    return 1
+    return v:true
   endif
-  return 0
+  return v:false
 endfunc
 
 call s:initVariable('g:TasksMarkerBase', '☐')
@@ -53,12 +53,13 @@ function! Trim(input_string)
   return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
 
-" Checks whether the specified linenumber is associated with a project.
-function! BelongsToProject(lineNumber)
+" Returns the project a specified linenumber is associated with.
+function! GetProject(lineNumber)
+  let l:project = { "lineNr": 0, "line": "" }
   let l:lineNumber = a:lineNumber
 
   if (BelongsToArchive(l:lineNumber))
-    return 0
+    return l:project
   endif
 
   while l:lineNumber > 0
@@ -70,12 +71,16 @@ function! BelongsToProject(lineNumber)
       continue
     endif
 
-    return 1
+    let l:project["lineNr"] = l:lineNumber
+    let l:project["line"] = l:line
+
+    break
   endwhile
 
-  return 0
+  return l:project
 endfunc
 
+" verifies whether the specified linenumber is part of the archive section.
 function! BelongsToArchive(lineNumber)
   let l:lineNumber = a:lineNumber
 
@@ -84,37 +89,35 @@ function! BelongsToArchive(lineNumber)
 
     if (l:line ==# s:archiveSeparator)
       if (Trim(getline(l:lineNumber + 1)) ==# s:regArchive)
-	return 1
+	return v:true
       endif
     endif
 
     let l:lineNumber = l:lineNumber - 1
   endwhile
 
-  return 0
+  return v:false
 endfunc
 
 function! NewTask(direction)
   let l:lineNumber = line('.') + a:direction
+  let l:project = GetProject(l:lineNumber)
 
-  if BelongsToProject(l:lineNumber) == 0
+  if l:project["lineNr"] == 0
     echoerr "No associated project."
-    return 1
+    return
   endif
 
-  let l:line = getline('.')
-  let l:isMatch = match(l:line, s:regProject)
+  let l:indendation = matchlist(l:project["line"], s:regProject)[1]
   let l:text = g:TasksMarkerBase . ' '
 
   if a:direction == -1
-    exec 'normal O' . l:text
+    exec 'normal O' . l:indendation . l:text
   else
-    exec 'normal o' . l:text
+    exec 'normal o' . l:indendation . l:text
   endif
 
-  if l:isMatch > -1
-    exec 'normal >>'
-  endif
+  exec 'normal >>'
 
   startinsert!
 endfunc
@@ -231,14 +234,14 @@ endfunc
 " Checks whether a specific line has been marked as done or cancelled.
 function! IsCompleted(line)
   if match(a:line, s:regDone) > -1
-    return 1
+    return v:true
   endif
 
   if match(a:line, s:regCancelled) > -1
-    return 1
+    return v:true
   endif
 
-  return 0
+  return v:false
 endfunc
 
 function! TasksArchive()
@@ -254,7 +257,7 @@ function! TasksArchive()
     let l:isCompleted = IsCompleted(l:line)
     let l:projectMatch = matchstr(l:line, s:regProject)
 
-    if l:isCompleted == 1
+    if l:isCompleted == v:true
       call add(l:completedTasks, [l:lineNr, Trim(l:line)])
     endif
 
