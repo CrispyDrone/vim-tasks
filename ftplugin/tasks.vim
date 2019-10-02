@@ -39,18 +39,44 @@ call s:initVariable('g:TasksArchiveSeparator', '＿＿＿＿＿＿＿＿＿＿�
 let b:regesc = '[]()?.*@='
 
 " LOCALS
-let s:regProject = '^\s*.*:$'
 let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
+let s:regProject = '^\(\s*\)\(\(.*' . s:regMarker . '.*\)\@!.\)\+:\s*$'
 let s:regDone = g:TasksAttributeMarker . 'done'
 let s:regCancelled = g:TasksAttributeMarker . 'cancelled'
 let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
 let s:dateFormat = g:TasksDateFormat
 
 function! Trim(input_string)
-    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
+  return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
 
+" Checks whether the specified linenumber is associated with a project.
+function! BelongsToProject(lineNumber)
+  let l:lineNumber = max([0, a:lineNumber])
+
+  while l:lineNumber > 0
+    let l:line = getline(l:lineNumber)
+    let l:isMatch = match(l:line, s:regProject)
+
+    if l:isMatch > -1
+      return 1
+    endif
+
+    let l:lineNumber = l:lineNumber - 1
+
+  endwhile
+
+  return 0
+endfunc
+
 function! NewTask(direction)
+  let l:lineNumber = line('.') + a:direction
+
+  if BelongsToProject(l:lineNumber) == 0
+    echoerr "No associated project."
+    return 1
+  endif
+
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regProject)
   let l:text = g:TasksMarkerBase . ' '
@@ -111,7 +137,7 @@ function! GetProjects()
     if len(l:match)
       call add(l:results, Trim(strpart(l:match, 0, len(l:match) - 1)))
       if indent(l:lineNr) == 0
-        break
+	break
       endif
     endif
     let l:lineNr = l:lineNr - 1
@@ -134,10 +160,10 @@ function! TaskComplete()
       call RemoveAttribute('project')
     else
       if l:cancelledMatch > -1
-        " this task was previously cancelled, so we need to swap the marker
-        " and just remove the @cancelled first
-        call RemoveAttribute('cancelled')
-        call RemoveAttribute('project')
+	" this task was previously cancelled, so we need to swap the marker
+	" and just remove the @cancelled first
+	call RemoveAttribute('cancelled')
+	call RemoveAttribute('project')
       endif
       " swap out the marker, add the @done, find the projects and add @project
       let l:projects = GetProjects()
@@ -163,10 +189,10 @@ function! TaskCancel()
       call RemoveAttribute('project')
     else
       if l:doneMatch > -1
-        " this task was previously cancelled, so we need to swap the marker
-        " and just remove the @cancelled first
-        call RemoveAttribute('done')
-        call RemoveAttribute('project')
+	" this task was previously cancelled, so we need to swap the marker
+	" and just remove the @cancelled first
+	call RemoveAttribute('done')
+	call RemoveAttribute('project')
       endif
       " swap out the marker, add the @done, find the projects and add @project
       let l:projects = GetProjects()
@@ -189,7 +215,7 @@ function! TasksArchive()
     let l:doneMatch = match(l:line, s:regDone)
     let l:cancelledMatch = match(l:line, s:regCancelled)
     let l:projectMatch = matchstr(l:line, s:regProject)
-    
+
     if l:doneMatch > -1 || l:cancelledMatch > -1
       call add(l:completedTasks, [l:lineNr, Trim(l:line)])
     endif
