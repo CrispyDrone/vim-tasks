@@ -2,7 +2,7 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Last Change: Oct 02, 2019
-" Version:	   0.15
+" Version:	   0.16
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -155,25 +155,68 @@ function! RemoveAttribute(name)
   endif
 endfunc
 
-function! GetProjects()
-  " read from current line upwards, seeking all project matches
-  " and adding them to a list
-  let l:lineNr = line('.') - 1
-  let l:results = []
-  while l:lineNr > 0
-    let l:match = matchstr(getline(l:lineNr), s:regProject)
-    if len(l:match)
-      call add(l:results, Trim(strpart(l:match, 0, len(l:match) - 1)))
-      if indent(l:lineNr) == 0
+" returns a list of all projects a task is associated with. A task is
+" associated with its immediate parent project, but also all parent projects
+" of the immediate parent project. A project is a parent of another project
+" in case it has a smaller indendation and there is no other project with an
+" equal indendation in between both.
+function! GetProjects(lineNumber)
+  let l:lineNumber = a:lineNumber
+  let l:project = GetProject(l:lineNumber)
+
+  if (l:project["lineNr"] == 0)
+    echoerr "No associated project."
+    return
+  endif
+
+  let l:projectDepth = strchars(matchlist(l:project["line"], s:regProject)[1])
+  let l:parentProjectDepths = [l:projectDepth]
+  let l:results = [GetProjectName(l:project["line"])]
+
+  while l:lineNumber > 0
+    let l:match = matchlist(getline(l:lineNumber), s:regProject)
+    if len(l:match) > 0
+      let l:currentDepth = strchars(l:match[1]) 
+      if l:currentDepth < l:projectDepth 
+	"echomsg "parentProjectsDepths" . string(l:parentProjectDepths)
+	"echomsg "currentDepth" . l:currentDepth
+	let l:parentProjectAtCurrentDepth = filter(l:parentProjectDepths, 'v:val == ' . l:currentDepth)
+	if len(l:parentProjectAtCurrentDepth) == 0
+	  call add(l:results, GetProjectName(l:match[0]))
+	  call add(l:parentProjectDepths, l:currentDepth)
+	endif
+      endif
+      if indent(l:lineNumber) == 0
 	break
       endif
     endif
-    let l:lineNr = l:lineNr - 1
+    let l:lineNumber = l:lineNumber - 1
   endwhile
   return reverse(l:results)
 endfunc
 
+" Get the project name from a line containing the project header i.e. trim and
+" remove colon.
+function! GetProjectName(projectLine)
+  let l:projectLine = a:projectLine
+  let l:trimmedProjectLine = Trim(l:projectLine)
+  return strcharpart(l:trimmedProjectLine, 0, strchars(l:trimmedProjectLine) - 1)
+endfunc
+
+"function! MarkTaskAs(state)
+"  let l:lineNumber = line('.')
+"  let l:project = GetProject(l:lineNumber)
+"  
+"  if (l:project["lineNr"] == 0)
+"	  echoerr "No associated project."
+"	  return
+"  endif
+"
+"
+"endfunc
+
 function! TaskComplete()
+  let l:lineNumber = line('.')
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
   let l:doneMatch = match(l:line, s:regDone)
@@ -194,7 +237,7 @@ function! TaskComplete()
 	call RemoveAttribute('project')
       endif
       " swap out the marker, add the @done, find the projects and add @project
-      let l:projects = GetProjects()
+      let l:projects = GetProjects(l:lineNumber)
       call SetLineMarker(g:TasksMarkerDone)
       call AddAttribute('done', strftime(s:dateFormat))
       call AddAttribute('project', join(l:projects, ' / '))
@@ -203,6 +246,7 @@ function! TaskComplete()
 endfunc
 
 function! TaskCancel()
+  let l:lineNumber = line('.')
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
   let l:doneMatch = match(l:line, s:regDone)
@@ -223,7 +267,7 @@ function! TaskCancel()
 	call RemoveAttribute('project')
       endif
       " swap out the marker, add the @done, find the projects and add @project
-      let l:projects = GetProjects()
+      let l:projects = GetProjects(l:lineNumber)
       call SetLineMarker(g:TasksMarkerCancelled)
       call AddAttribute('cancelled', strftime(s:dateFormat))
       call AddAttribute('project', join(l:projects, ' / '))
