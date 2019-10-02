@@ -203,6 +203,19 @@ function! TaskCancel()
   endif
 endfunc
 
+" Checks whether a specific line has been marked as done or cancelled.
+function! IsCompleted(line)
+	if match(a:line, s:regDone) > -1
+		return 1
+	endif
+
+	if match(a:line, s:regCancelled) > -1
+		return 1
+	endif
+
+	return 0
+endfunc
+
 function! TasksArchive()
   " go over every line. Compile a list of all cancelled or completed items
   " until the end of the file is reached or the archive project is
@@ -210,13 +223,13 @@ function! TasksArchive()
   let l:archiveLine = -1
   let l:completedTasks = []
   let l:lineNr = 0
-  while l:lineNr < line('$')
+  let l:lastLine = line('$')
+  while l:lineNr < l:lastLine
     let l:line = getline(l:lineNr)
-    let l:doneMatch = match(l:line, s:regDone)
-    let l:cancelledMatch = match(l:line, s:regCancelled)
+    let l:isCompleted = IsCompleted(l:line)
     let l:projectMatch = matchstr(l:line, s:regProject)
 
-    if l:doneMatch > -1 || l:cancelledMatch > -1
+    if l:isCompleted == 1
       call add(l:completedTasks, [l:lineNr, Trim(l:line)])
     endif
 
@@ -230,7 +243,7 @@ function! TasksArchive()
 
   if l:archiveLine == -1
     " no archive found yet, so let's stick one in at the very bottom
-    exec '%s#\($\n\s*\)\+\%$##'
+    exec '%s#\($\n\s*\)*\%$##'
     exec 'normal Go'
     exec 'normal o' . g:TasksArchiveSeparator
     exec 'normal oArchive:'
