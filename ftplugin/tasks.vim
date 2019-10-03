@@ -2,7 +2,7 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Last Change: Oct 02, 2019
-" Version:	   0.17
+" Version:	   0.18
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -139,7 +139,6 @@ function! NewTask(direction)
   let l:project = GetProject(l:lineNumber)
 
   if l:project['lineNr'] == 0
-    echoerr 'No associated project.'
     return
   endif
 
@@ -214,16 +213,16 @@ endfunc
 " equal indendation in between both.
 function! GetProjects(lineNumber)
   let l:lineNumber = a:lineNumber
+  let l:results = []
   let l:project = GetProject(l:lineNumber)
 
   if (l:project['lineNr'] == 0)
-    echoerr 'No associated project.'
-    return
+    return l:results
   endif
 
   let l:projectDepth = strchars(matchlist(l:project['line'], s:regProject)[1])
   let l:parentProjectDepths = [l:projectDepth]
-  let l:results = [GetProjectName(l:project['line'])]
+  call add(l:results, GetProjectName(l:project['line']))
 
   while l:lineNumber > 0
     let l:match = matchlist(getline(l:lineNumber), s:regProject)
@@ -263,7 +262,6 @@ function! MarkTaskAs(nextState)
     let l:projects = GetProjects(l:lineNumber)
 
     if empty(l:projects)
-      echoerr 'No associated project.'
       return
     endif
 
@@ -314,7 +312,6 @@ function! GetTaskState(lineNumber)
     let l:isCancelled = GetAttribute('cancelled')['start'] != -1
 
     if l:isDone && l:isCancelled
-      echoerr 'Task cannot be both done and cancelled at the same time.'
       let l:state = 'invalid'
     elseif l:isDone
       let l:state = 'done'
