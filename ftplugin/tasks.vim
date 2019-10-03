@@ -2,7 +2,7 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Last Change: Oct 02, 2019
-" Version:	   0.16
+" Version:	   0.17
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -48,6 +48,41 @@ let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
 let s:dateFormat = g:TasksDateFormat
 let s:archiveSeparator = g:TasksArchiveSeparator
 let s:regArchive = g:TasksHeaderArchive . ':'
+let s:taskStates = { 
+      \'done': { 
+	\'lineMarker': g:TasksMarkerDone, 
+	\'attributes': { 
+	  \'project': { 
+	    \'function': 'join', 
+	    \'arguments': [ 'projects', 'separator' ] 
+	  \}, 
+	  \'done': {
+	    \'function': 'strftime',
+	    \'arguments': [ 'dateFormat' ]
+	  \}
+	\},
+	\'next': [ 'none', 'cancelled' ]
+      \},
+      \'cancelled': { 
+	\'lineMarker': g:TasksMarkerCancelled, 
+      	\'attributes': { 
+	\'project': { 
+	  \'function': 'join', 
+      	  \'arguments': [ 'projects', 'separator' ] 
+      	\}, 
+	\'cancelled': {
+	  \'function': 'strftime',
+      	  \'arguments': [ 'dateFormat' ]
+      	\}
+	\},
+	\'next': [ 'none', 'done' ] 
+      \},
+      \'none' : {
+	\'lineMarker': g:TasksMarkerBase, 
+      	\'attributes': {},
+      	\'next': [ 'done', 'cancelled' ] 
+      	\}
+      \}
 
 function! Trim(input_string)
   return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
@@ -55,7 +90,7 @@ endfunction
 
 " Returns the project a specified linenumber is associated with.
 function! GetProject(lineNumber)
-  let l:project = { "lineNr": 0, "line": "" }
+  let l:project = { 'lineNr': 0, 'line': '' }
   let l:lineNumber = a:lineNumber
 
   if (BelongsToArchive(l:lineNumber))
@@ -71,8 +106,8 @@ function! GetProject(lineNumber)
       continue
     endif
 
-    let l:project["lineNr"] = l:lineNumber
-    let l:project["line"] = l:line
+    let l:project['lineNr'] = l:lineNumber
+    let l:project['line'] = l:line
 
     break
   endwhile
@@ -103,12 +138,12 @@ function! NewTask(direction)
   let l:lineNumber = line('.') + a:direction
   let l:project = GetProject(l:lineNumber)
 
-  if l:project["lineNr"] == 0
-    echoerr "No associated project."
+  if l:project['lineNr'] == 0
+    echoerr 'No associated project.'
     return
   endif
 
-  let l:indendation = matchlist(l:project["line"], s:regProject)[1]
+  let l:indendation = matchlist(l:project['line'], s:regProject)[1]
   let l:text = g:TasksMarkerBase . ' '
 
   if a:direction == -1
@@ -133,22 +168,39 @@ function! SetLineMarker(marker)
   endif
 endfunc
 
-function! AddAttribute(name, value)
-  " at the end of the line, insert in the attribute:
-  let l:attVal = ''
-  if a:value != ''
-    let l:attVal = '(' . a:value . ')'
-  endif
-  exec 'normal A ' . g:TasksAttributeMarker . a:name . l:attVal
-endfunc
-
-function! RemoveAttribute(name)
-  " if the attribute exists, remove it
+" returns the start and end cols of an attribute as a dictionary. If the
+" attribute doesn't exist, the start and end are -1.
+function! GetAttribute(name)
+  let l:attribute = { 'start': -1, 'end': -1 }
   let l:rline = getline('.')
   let l:regex = g:TasksAttributeMarker . a:name . '\(([^)]*)\)\='
   let l:attStart = match(l:rline, regex)
   if l:attStart > -1
     let l:attEnd = matchend(l:rline, l:regex)
+    let l:attribute['start'] = l:attStart
+    let l:attribute['end'] = l:attEnd
+  endif
+  return l:attribute
+endfunc
+
+function! AddAttribute(name, value)
+  " at the end of the line, insert in the attribute:
+  let l:existingAttribute = GetAttribute(a:name)
+  if (l:existingAttribute['start'] == -1)
+    let l:attVal = ''
+    if a:value != ''
+      let l:attVal = '(' . a:value . ')'
+    endif
+    exec 'normal A ' . g:TasksAttributeMarker . a:name . l:attVal
+  endif
+endfunc
+
+function! RemoveAttribute(name)
+  " if the attribute exists, remove it
+  let l:attribute = GetAttribute(a:name)
+  let l:attStart = l:attribute['start']
+  if l:attStart > -1
+    let l:attEnd = l:attribute['end']
     let l:diff = (l:attEnd - l:attStart) + 1
     call cursor(line('.'), l:attStart)
     exec 'normal ' . l:diff . 'dl'
@@ -164,22 +216,20 @@ function! GetProjects(lineNumber)
   let l:lineNumber = a:lineNumber
   let l:project = GetProject(l:lineNumber)
 
-  if (l:project["lineNr"] == 0)
-    echoerr "No associated project."
+  if (l:project['lineNr'] == 0)
+    echoerr 'No associated project.'
     return
   endif
 
-  let l:projectDepth = strchars(matchlist(l:project["line"], s:regProject)[1])
+  let l:projectDepth = strchars(matchlist(l:project['line'], s:regProject)[1])
   let l:parentProjectDepths = [l:projectDepth]
-  let l:results = [GetProjectName(l:project["line"])]
+  let l:results = [GetProjectName(l:project['line'])]
 
   while l:lineNumber > 0
     let l:match = matchlist(getline(l:lineNumber), s:regProject)
     if len(l:match) > 0
       let l:currentDepth = strchars(l:match[1]) 
       if l:currentDepth < l:projectDepth 
-	"echomsg "parentProjectsDepths" . string(l:parentProjectDepths)
-	"echomsg "currentDepth" . l:currentDepth
 	let l:parentProjectAtCurrentDepth = filter(l:parentProjectDepths, 'v:val == ' . l:currentDepth)
 	if len(l:parentProjectAtCurrentDepth) == 0
 	  call add(l:results, GetProjectName(l:match[0]))
@@ -203,76 +253,87 @@ function! GetProjectName(projectLine)
   return strcharpart(l:trimmedProjectLine, 0, strchars(l:trimmedProjectLine) - 1)
 endfunc
 
-"function! MarkTaskAs(state)
-"  let l:lineNumber = line('.')
-"  let l:project = GetProject(l:lineNumber)
-"  
-"  if (l:project["lineNr"] == 0)
-"	  echoerr "No associated project."
-"	  return
-"  endif
-"
-"
-"endfunc
-
-function! TaskComplete()
-  let l:lineNumber = line('.')
+function! MarkTaskAs(nextState)
+  let l:nextState = a:nextState
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
-  let l:doneMatch = match(l:line, s:regDone)
-  let l:cancelledMatch = match(l:line, s:regCancelled)
 
   if l:isMatch > -1
-    if l:doneMatch > -1
-      " this task is done, so we need to remove the marker and the
-      " @done/@project
-      call SetLineMarker(g:TasksMarkerBase)
-      call RemoveAttribute('done')
-      call RemoveAttribute('project')
-    else
-      if l:cancelledMatch > -1
-	" this task was previously cancelled, so we need to swap the marker
-	" and just remove the @cancelled first
-	call RemoveAttribute('cancelled')
-	call RemoveAttribute('project')
+    let l:lineNumber = line('.')
+    let l:projects = GetProjects(l:lineNumber)
+
+    if empty(l:projects)
+      echoerr 'No associated project.'
+      return
+    endif
+
+    let l:currentState = GetTaskState(l:lineNumber)
+    if (l:currentState ==# l:nextState)
+      let l:nextState = 'none'
+    endif
+    
+    if has_key(s:taskStates, l:currentState) == v:true
+      let l:currentStateOptions = s:taskStates[l:currentState]
+      let l:validNextStates = copy(l:currentStateOptions['next'])
+      let l:isValidNextState = !empty(filter(l:validNextStates, 'v:val ==# ' . "l:nextState"))
+      if (l:isValidNextState == v:true)
+	let l:attributesToRemove = keys(l:currentStateOptions['attributes'])
+
+	for l:attribute in l:attributesToRemove
+	  call RemoveAttribute(l:attribute)
+	endfor
+
+	let l:newLineMarker = s:taskStates[l:nextState]['lineMarker']
+	let l:newAttributes = s:taskStates[l:nextState]['attributes']
+
+	call SetLineMarker(l:newLineMarker)
+	let l:arguments = { 'projects': l:projects, 'separator': ' \ ', 'dateFormat': s:dateFormat }
+
+	for l:attribute in keys(l:newAttributes)
+	  let l:attributeConfiguration = l:newAttributes[l:attribute]
+	  let l:attributeFunctionArguments = l:attributeConfiguration['arguments']
+	  let l:functionArguments = []
+	  for l:attributeFunctionArgument in l:attributeFunctionArguments
+	    call add(l:functionArguments, l:arguments[l:attributeFunctionArgument])
+	  endfor
+	  let l:attributeValue = call(l:attributeConfiguration['function'], l:functionArguments)
+	  call AddAttribute(l:attribute, l:attributeValue)
+	endfor
       endif
-      " swap out the marker, add the @done, find the projects and add @project
-      let l:projects = GetProjects(l:lineNumber)
-      call SetLineMarker(g:TasksMarkerDone)
-      call AddAttribute('done', strftime(s:dateFormat))
-      call AddAttribute('project', join(l:projects, ' / '))
     endif
   endif
 endfunc
 
-function! TaskCancel()
-  let l:lineNumber = line('.')
+function! GetTaskState(lineNumber)
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
-  let l:doneMatch = match(l:line, s:regDone)
-  let l:cancelledMatch = match(l:line, s:regCancelled)
+  let l:state = ''
 
   if l:isMatch > -1
-    if l:cancelledMatch > -1
-      " this task is done, so we need to remove the marker and the
-      " @done/@project
-      call SetLineMarker(g:TasksMarkerBase)
-      call RemoveAttribute('cancelled')
-      call RemoveAttribute('project')
+    let l:isDone = GetAttribute('done')['start'] != -1
+    let l:isCancelled = GetAttribute('cancelled')['start'] != -1
+
+    if l:isDone && l:isCancelled
+      echoerr 'Task cannot be both done and cancelled at the same time.'
+      let l:state = 'invalid'
+    elseif l:isDone
+      let l:state = 'done'
+    elseif l:isCancelled
+      let l:state = 'cancelled'
     else
-      if l:doneMatch > -1
-	" this task was previously cancelled, so we need to swap the marker
-	" and just remove the @cancelled first
-	call RemoveAttribute('done')
-	call RemoveAttribute('project')
-      endif
-      " swap out the marker, add the @done, find the projects and add @project
-      let l:projects = GetProjects(l:lineNumber)
-      call SetLineMarker(g:TasksMarkerCancelled)
-      call AddAttribute('cancelled', strftime(s:dateFormat))
-      call AddAttribute('project', join(l:projects, ' / '))
+      let l:state = 'none'
     endif
   endif
+
+  return l:state
+endfunc
+
+function! TaskComplete()
+  call MarkTaskAs('done')
+endfunc
+
+function! TaskCancel()
+  call MarkTaskAs('cancelled')
 endfunc
 
 " Checks whether a specific line has been marked as done or cancelled.
