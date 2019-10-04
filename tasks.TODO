@@ -1,0 +1,39 @@
+bug fixes:
+	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation
+	☐ You can copy paste a task above the Archive header, and then complete it
+	☐ It's possible to create a task above the first group header when it is not on the first line
+
+refactoring:
+	☐ Change BelongsToProject to GetProject(lineNumber, direction) which returns a tuple/dictionary type object
+	☐ Change BelongsToArchive to GetArchive(lineNumber, direction) which returns a tuple/dictionary type object
+	☐ Would it be possible to not have this be a purely parsing based plugin, but instead have proper datastructures that get persisted to a file??
+	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc
+
+new features:
+	☐ Allow toggling of priority attributes (you will have to write a new function)
+	☐ Add support for absolute due attribute (user will have to enter the date himself)
+	☐ Add support for relative due attribute (user will have to enter the date himself), this will also always add a 'from' attribute or something similar that indicates when the due attribute was added
+	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled)
+	☐ Add support for new task state 'started' that will then add a 'started' attribute when in progress, and add a 'worked' attribute when it's cancelled or set to done. This can help with tracking time.
+	☐ Add support for commands that can sort on importance attribute, and on due attribute
+	☐ Allow users to determine whether tasks should be indented or not compared to the group header
+	☐ Allow user to determine whether tasks need to be associated with a group header or not
+	☐ Allow a regular line to be turned into a task
+	☐ Allow the updating of a timestamp (will also be useful to update relative due attributes)
+	☐ Allow the unarchiving of a task
+	☐ Support visual selection mode for actions such as marking as done or cancelled, unarchiving, archiving, updating timestamps,...
+	☐ Allow actions on group headers which will mark as done or cancelled, archive, unarchive, or update timestamps for all tasks belonging to that group header
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+	✓ Add support for priority attribute (low, middle, high, critical) @done(2019-10-04 23:31) @project(new features)
+	✓ Remove namespace pollution by functions that shouldn't be exposed @done(2019-10-04 22:44) @project(refactoring)
+	✓ Don't issue error messages, just don't do anything since they're annoying... @done(2019-10-03 21:27) @project(refactoring)
+	✓ Prevent errors when GetProjects returns empty list @done(2019-10-03 21:16) @project(bug fixes)
+	✓ Fix project attribute addition in nested tasks @done(2019-10-03 19:13) @project(bug fixes)
+	✓ Refactor TaskComplete and TaskCancel to use a single function MarkTaskAs @done(2019-10-03 19:13) @project(refactoring)
+	✓ Consistent indendation on new tasks regardless of project's indendation and its nesting level @done(2019-10-02 19:06) @project(bug fixes)
+	✓ Prevent creation of new tasks inside archive section @done(2019-10-02 17:54) @project(bug fixes)
+	✓ Prevent creation of a task above a group header that doesn't belong to any group @done(2019-10-02 14:51) @project(bug fixes)
+	✓ Anythingwith a colon should only be considered a group header when it's at the start of a new line, or there's only whitespace in front of it @done(2019-10-02 14:51) @project(bug fixes)
+	✓ Fix archiving to not result in an error when the file doesn't end in a newline @done(2019-10-02 15:44) @project(bug fixes)

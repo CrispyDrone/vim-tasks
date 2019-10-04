@@ -1,8 +1,9 @@
 " Tasks plugin
 " Language:    Tasks
 " Maintainer:  CrispyDrone
+" Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 04, 2019
-" Version:	   0.19
+" Version:	   0.20
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -16,6 +17,10 @@ nnoremap <buffer> <localleader>N :call <SID>NewTask(-1)<CR>
 nnoremap <buffer> <localleader>d :call <SID>TaskComplete()<CR>
 nnoremap <buffer> <localleader>x :call <SID>TaskCancel()<CR>
 nnoremap <buffer> <localleader>a :call <SID>TasksArchive()<CR>
+nnoremap <buffer> <localleader>ml :call <SID>AddAttribute('priority', 'low')<CR>
+nnoremap <buffer> <localleader>mm :call <SID>AddAttribute('priority', 'medium')<CR>
+nnoremap <buffer> <localleader>mh :call <SID>AddAttribute('priority', 'high')<CR>
+nnoremap <buffer> <localleader>mc :call <SID>AddAttribute('priority', 'critical')<CR>
 
 " GLOBALS
 
@@ -30,7 +35,7 @@ function! s:initVariable(var, value)
 endfunc
 
 call s:initVariable('g:TasksMarkerBase', '☐')
-call s:initVariable('g:TasksMarkerDone', '✔')
+call s:initVariable('g:TasksMarkerDone', '✓')
 call s:initVariable('g:TasksMarkerCancelled', '✘')
 call s:initVariable('g:TasksDateFormat', '%Y-%m-%d %H:%M')
 call s:initVariable('g:TasksAttributeMarker', '@')

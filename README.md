@@ -8,16 +8,15 @@ Adjust the settings to match your ideal style. Change all the markers to '-' to 
 
 Any line that ends with `:` will be considered a header (like `My Things:`)
 
-Add tags to tasks by starting them with an `@`, such as `@important` or setting a value like `@due(tuesday)`.
+Add tags to tasks by starting them with an `@`, such as `@important` or setting a value like `@due(tuesday)`. Priority attributes ('low', 'medium', 'high', and 'critical') are supported in a special way by provided mappings, and a special syntax highlighting.
 
 This uses utf characters, so it is still valid as a plain text document.
 
 ## Installation
-
 ### Vundle
 Place this in your `.vimrc`:
 
-    Plugin 'irrationalistic/vim-tasks'
+    Plugin 'crispydrone/vim-tasks'
 
 ... then run the following in Vim:
 
@@ -29,7 +28,7 @@ For Vundle version < 0.10.2, replace Plugin with Bundle above.
 ### NeoBundle
 Place this in your `.vimrc`:
 
-    NeoBundle 'irrationalistic/vim-tasks'
+    NeoBundle 'crispydrone/vim-tasks'
 
 ... then run the following in Vim:
 
@@ -39,7 +38,7 @@ Place this in your `.vimrc`:
 ### VimPlug
 Place this in your `.vimrc`:
 
-    Plug 'irrationalistic/vim-tasks'
+    Plug 'crispydrone/vim-tasks'
 
 ... then run the following in Vim:
 
@@ -50,7 +49,7 @@ Place this in your `.vimrc`:
 Run the following in a terminal:
 
     cd ~/.vim/bundle
-    git clone https://github.com/irrationalistic/vim-tasks
+    git clone https://github.com/crispydrone/vim-tasks
 
 ## Settings Defaults
 
@@ -66,12 +65,16 @@ Run the following in a terminal:
 
 `let g:TasksArchiveSeparator = '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'`
 
-
 Run `:help Tasks` to view the full documentation.
 
 ## Preset Bindings
-* `<leader> n` - new task below
-* `<leader> N` - new task above
-* `<leader> d` - toggle current task complete
-* `<leader> x` - toggle current task cancelled
-* `<leader> a` - send completed tasks to the archive
++ `<localleader> n` - create a new task below current line
++ `<localleader> N` - create a new task above current line
++ `<localleader> d` - toggle current task between none and complete statuses
++ `<localleader> x` - toggle current task between none and cancelled statuses
++ `<localleader> a` - archive completed tasks
++ `<localleader> ml` - mark task as low priority
++ `<localleader> mm` - mark task as medium priority
++ `<localleader> mh` - mark task as high priority
++ `<localleader> mc` - mark task as critical priority
+
