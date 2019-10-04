@@ -1,8 +1,8 @@
 " Tasks plugin
 " Language:    Tasks
 " Maintainer:  CrispyDrone
-" Last Change: Oct 02, 2019
-" Version:	   0.18
+" Last Change: Oct 04, 2019
+" Version:	   0.19
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -11,11 +11,11 @@ endif
 let b:loaded_tasks = v:true
 
 " MAPPINGS
-nnoremap <buffer> <localleader>n :call NewTask(1)<cr>
-nnoremap <buffer> <localleader>N :call NewTask(-1)<cr>
-nnoremap <buffer> <localleader>d :call TaskComplete()<cr>
-nnoremap <buffer> <localleader>x :call TaskCancel()<cr>
-nnoremap <buffer> <localleader>a :call TasksArchive()<cr>
+nnoremap <buffer> <localleader>n :call <SID>NewTask(1)<CR>
+nnoremap <buffer> <localleader>N :call <SID>NewTask(-1)<CR>
+nnoremap <buffer> <localleader>d :call <SID>TaskComplete()<CR>
+nnoremap <buffer> <localleader>x :call <SID>TaskCancel()<CR>
+nnoremap <buffer> <localleader>a :call <SID>TasksArchive()<CR>
 
 " GLOBALS
 
@@ -66,14 +66,14 @@ let s:taskStates = {
       \'cancelled': { 
 	\'lineMarker': g:TasksMarkerCancelled, 
       	\'attributes': { 
-	\'project': { 
-	  \'function': 'join', 
-      	  \'arguments': [ 'projects', 'separator' ] 
-      	\}, 
-	\'cancelled': {
-	  \'function': 'strftime',
-      	  \'arguments': [ 'dateFormat' ]
-      	\}
+	  \'project': { 
+	    \'function': 'join', 
+      	    \'arguments': [ 'projects', 'separator' ] 
+	  \}, 
+	  \'cancelled': {
+	    \'function': 'strftime',
+      	    \'arguments': [ 'dateFormat' ]
+	  \}
 	\},
 	\'next': [ 'none', 'done' ] 
       \},
@@ -84,16 +84,16 @@ let s:taskStates = {
       	\}
       \}
 
-function! Trim(input_string)
+function! s:Trim(input_string)
   return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction
 
 " Returns the project a specified linenumber is associated with.
-function! GetProject(lineNumber)
+function! s:GetProject(lineNumber)
   let l:project = { 'lineNr': 0, 'line': '' }
   let l:lineNumber = a:lineNumber
 
-  if (BelongsToArchive(l:lineNumber))
+  if (s:BelongsToArchive(l:lineNumber))
     return l:project
   endif
 
@@ -116,14 +116,14 @@ function! GetProject(lineNumber)
 endfunc
 
 " verifies whether the specified linenumber is part of the archive section.
-function! BelongsToArchive(lineNumber)
+function! s:BelongsToArchive(lineNumber)
   let l:lineNumber = a:lineNumber
 
   while l:lineNumber > 0
-    let l:line = Trim(getline(l:lineNumber))
+    let l:line = s:Trim(getline(l:lineNumber))
 
     if (l:line ==# s:archiveSeparator)
-      if (Trim(getline(l:lineNumber + 1)) ==# s:regArchive)
+      if (s:Trim(getline(l:lineNumber + 1)) ==# s:regArchive)
 	return v:true
       endif
     endif
@@ -134,9 +134,9 @@ function! BelongsToArchive(lineNumber)
   return v:false
 endfunc
 
-function! NewTask(direction)
+function! s:NewTask(direction)
   let l:lineNumber = line('.') + a:direction
-  let l:project = GetProject(l:lineNumber)
+  let l:project = s:GetProject(l:lineNumber)
 
   if l:project['lineNr'] == 0
     return
@@ -156,7 +156,7 @@ function! NewTask(direction)
   startinsert!
 endfunc
 
-function! SetLineMarker(marker)
+function! s:SetLineMarker(marker)
   " if there is a marker, swap it out.
   " If there is no marker, add it in at first non-whitespace
   let l:line = getline('.')
@@ -169,7 +169,7 @@ endfunc
 
 " returns the start and end cols of an attribute as a dictionary. If the
 " attribute doesn't exist, the start and end are -1.
-function! GetAttribute(name)
+function! s:GetAttribute(name)
   let l:attribute = { 'start': -1, 'end': -1 }
   let l:rline = getline('.')
   let l:regex = g:TasksAttributeMarker . a:name . '\(([^)]*)\)\='
@@ -182,9 +182,9 @@ function! GetAttribute(name)
   return l:attribute
 endfunc
 
-function! AddAttribute(name, value)
+function! s:AddAttribute(name, value)
   " at the end of the line, insert in the attribute:
-  let l:existingAttribute = GetAttribute(a:name)
+  let l:existingAttribute = s:GetAttribute(a:name)
   if (l:existingAttribute['start'] == -1)
     let l:attVal = ''
     if a:value != ''
@@ -194,9 +194,9 @@ function! AddAttribute(name, value)
   endif
 endfunc
 
-function! RemoveAttribute(name)
+function! s:RemoveAttribute(name)
   " if the attribute exists, remove it
-  let l:attribute = GetAttribute(a:name)
+  let l:attribute = s:GetAttribute(a:name)
   let l:attStart = l:attribute['start']
   if l:attStart > -1
     let l:attEnd = l:attribute['end']
@@ -211,10 +211,10 @@ endfunc
 " of the immediate parent project. A project is a parent of another project
 " in case it has a smaller indendation and there is no other project with an
 " equal indendation in between both.
-function! GetProjects(lineNumber)
+function! s:GetProjects(lineNumber)
   let l:lineNumber = a:lineNumber
   let l:results = []
-  let l:project = GetProject(l:lineNumber)
+  let l:project = s:GetProject(l:lineNumber)
 
   if (l:project['lineNr'] == 0)
     return l:results
@@ -222,7 +222,7 @@ function! GetProjects(lineNumber)
 
   let l:projectDepth = strchars(matchlist(l:project['line'], s:regProject)[1])
   let l:parentProjectDepths = [l:projectDepth]
-  call add(l:results, GetProjectName(l:project['line']))
+  call add(l:results, s:GetProjectName(l:project['line']))
 
   while l:lineNumber > 0
     let l:match = matchlist(getline(l:lineNumber), s:regProject)
@@ -231,7 +231,7 @@ function! GetProjects(lineNumber)
       if l:currentDepth < l:projectDepth 
 	let l:parentProjectAtCurrentDepth = filter(l:parentProjectDepths, 'v:val == ' . l:currentDepth)
 	if len(l:parentProjectAtCurrentDepth) == 0
-	  call add(l:results, GetProjectName(l:match[0]))
+	  call add(l:results, s:GetProjectName(l:match[0]))
 	  call add(l:parentProjectDepths, l:currentDepth)
 	endif
       endif
@@ -246,26 +246,26 @@ endfunc
 
 " Get the project name from a line containing the project header i.e. trim and
 " remove colon.
-function! GetProjectName(projectLine)
+function! s:GetProjectName(projectLine)
   let l:projectLine = a:projectLine
-  let l:trimmedProjectLine = Trim(l:projectLine)
+  let l:trimmedProjectLine = s:Trim(l:projectLine)
   return strcharpart(l:trimmedProjectLine, 0, strchars(l:trimmedProjectLine) - 1)
 endfunc
 
-function! MarkTaskAs(nextState)
+function! s:MarkTaskAs(nextState)
   let l:nextState = a:nextState
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
 
   if l:isMatch > -1
     let l:lineNumber = line('.')
-    let l:projects = GetProjects(l:lineNumber)
+    let l:projects = s:GetProjects(l:lineNumber)
 
     if empty(l:projects)
       return
     endif
 
-    let l:currentState = GetTaskState(l:lineNumber)
+    let l:currentState = s:GetTaskState(l:lineNumber)
     if (l:currentState ==# l:nextState)
       let l:nextState = 'none'
     endif
@@ -278,13 +278,13 @@ function! MarkTaskAs(nextState)
 	let l:attributesToRemove = keys(l:currentStateOptions['attributes'])
 
 	for l:attribute in l:attributesToRemove
-	  call RemoveAttribute(l:attribute)
+	  call s:RemoveAttribute(l:attribute)
 	endfor
 
 	let l:newLineMarker = s:taskStates[l:nextState]['lineMarker']
 	let l:newAttributes = s:taskStates[l:nextState]['attributes']
 
-	call SetLineMarker(l:newLineMarker)
+	call s:SetLineMarker(l:newLineMarker)
 	let l:arguments = { 'projects': l:projects, 'separator': ' \ ', 'dateFormat': s:dateFormat }
 
 	for l:attribute in keys(l:newAttributes)
@@ -295,21 +295,21 @@ function! MarkTaskAs(nextState)
 	    call add(l:functionArguments, l:arguments[l:attributeFunctionArgument])
 	  endfor
 	  let l:attributeValue = call(l:attributeConfiguration['function'], l:functionArguments)
-	  call AddAttribute(l:attribute, l:attributeValue)
+	  call s:AddAttribute(l:attribute, l:attributeValue)
 	endfor
       endif
     endif
   endif
 endfunc
 
-function! GetTaskState(lineNumber)
+function! s:GetTaskState(lineNumber)
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regMarker)
   let l:state = ''
 
   if l:isMatch > -1
-    let l:isDone = GetAttribute('done')['start'] != -1
-    let l:isCancelled = GetAttribute('cancelled')['start'] != -1
+    let l:isDone = s:GetAttribute('done')['start'] != -1
+    let l:isCancelled = s:GetAttribute('cancelled')['start'] != -1
 
     if l:isDone && l:isCancelled
       let l:state = 'invalid'
@@ -325,16 +325,16 @@ function! GetTaskState(lineNumber)
   return l:state
 endfunc
 
-function! TaskComplete()
-  call MarkTaskAs('done')
+function! s:TaskComplete()
+  call s:MarkTaskAs('done')
 endfunc
 
-function! TaskCancel()
-  call MarkTaskAs('cancelled')
+function! s:TaskCancel()
+  call s:MarkTaskAs('cancelled')
 endfunc
 
 " Checks whether a specific line has been marked as done or cancelled.
-function! IsCompleted(line)
+function! s:IsCompleted(line)
   if match(a:line, s:regDone) > -1
     return v:true
   endif
@@ -346,7 +346,7 @@ function! IsCompleted(line)
   return v:false
 endfunc
 
-function! TasksArchive()
+function! s:TasksArchive()
   " go over every line. Compile a list of all cancelled or completed items
   " until the end of the file is reached or the archive project is
   " detected, whicheved happens first.
@@ -356,14 +356,14 @@ function! TasksArchive()
   let l:lastLine = line('$')
   while l:lineNr < l:lastLine
     let l:line = getline(l:lineNr)
-    let l:isCompleted = IsCompleted(l:line)
+    let l:isCompleted = s:IsCompleted(l:line)
     let l:projectMatch = matchstr(l:line, s:regProject)
 
     if l:isCompleted == v:true
-      call add(l:completedTasks, [l:lineNr, Trim(l:line)])
+      call add(l:completedTasks, [l:lineNr, s:Trim(l:line)])
     endif
 
-    if l:projectMatch > -1 && Trim(l:line) == 'Archive:'
+    if l:projectMatch > -1 && s:Trim(l:line) == 'Archive:'
       let l:archiveLine = l:lineNr
       break
     endif
