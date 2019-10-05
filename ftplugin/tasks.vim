@@ -2,8 +2,8 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
-" Last Change: Oct 04, 2019
-" Version:	   0.30
+" Last Change: Oct 06, 2019
+" Version:	   0.40
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -21,6 +21,7 @@ nnoremap <buffer> <localleader>ml :call <SID>SetAttribute('priority', 'low')<CR>
 nnoremap <buffer> <localleader>mm :call <SID>SetAttribute('priority', 'medium')<CR>
 nnoremap <buffer> <localleader>mh :call <SID>SetAttribute('priority', 'high')<CR>
 nnoremap <buffer> <localleader>mc :call <SID>SetAttribute('priority', 'critical')<CR>
+nnoremap <buffer> <localleader>S :call <SID>SortTasks()<CR>
 
 " GLOBALS
 
@@ -172,11 +173,11 @@ function! s:SetLineMarker(marker)
   endif
 endfunc
 
-" returns the start and end cols of an attribute as a dictionary. If the
+" returns the { name, value, start, end } (start and end are cols) of an attribute as a dictionary. If the
 " attribute doesn't exist, the start and end are -1.
-function! s:GetAttribute(name)
+function! s:GetAttribute(lineNumber, name)
   let l:attribute = { 'name': '', 'start': -1, 'end': -1, 'value': '' }
-  let l:rline = getline('.')
+  let l:rline = getline(a:lineNumber)
   let l:regex = g:TasksAttributeMarker . a:name . '\((\([^)]*\))\)\='
   let l:attStart = match(l:rline, regex)
   if l:attStart > -1
@@ -191,9 +192,9 @@ function! s:GetAttribute(name)
   return l:attribute
 endfunc
 
-function! s:AddAttribute(name, value)
+function! s:AddAttribute(lineNumber, name, value)
   " at the end of the line, insert in the attribute:
-  let l:existingAttribute = s:GetAttribute(a:name)
+  let l:existingAttribute = s:GetAttribute(a:lineNumber, a:name)
   if (l:existingAttribute['start'] == -1)
     let l:attVal = ''
     if a:value != ''
@@ -203,9 +204,9 @@ function! s:AddAttribute(name, value)
   endif
 endfunc
 
-function! s:RemoveAttribute(name)
+function! s:RemoveAttribute(lineNumber, name)
   " if the attribute exists, remove it
-  let l:attribute = s:GetAttribute(a:name)
+  let l:attribute = s:GetAttribute(a:lineNumber, a:name)
   let l:attStart = l:attribute['start']
   if l:attStart > -1
     let l:attEnd = l:attribute['end']
@@ -216,15 +217,18 @@ function! s:RemoveAttribute(name)
 endfunc
 
 function! s:SetAttribute(name, value)
-  let l:attribute = s:GetAttribute(a:name)
+  let l:cursorPosition = getcurpos()
+  let l:lineNr = line('.')
+  let l:attribute = s:GetAttribute(l:lineNr, a:name)
   if l:attribute['start'] == -1
-    call s:AddAttribute(a:name, a:value)
+    call s:AddAttribute(l:lineNr, a:name, a:value)
   else
-    call s:RemoveAttribute(a:name)
+    call s:RemoveAttribute(l:lineNr, a:name)
     if l:attribute['value'] !=# a:value
-      call s:AddAttribute(a:name, a:value)
+      call s:AddAttribute(l:lineNr, a:name, a:value)
     endif
   endif
+  call setpos('.', l:cursorPosition)
 endfunc
 
 " returns a list of all projects a task is associated with. A task is
@@ -290,7 +294,7 @@ function! s:MarkTaskAs(nextState)
     if (l:currentState ==# l:nextState)
       let l:nextState = 'none'
     endif
-    
+
     if has_key(s:taskStates, l:currentState) == v:true
       let l:currentStateOptions = s:taskStates[l:currentState]
       let l:validNextStates = copy(l:currentStateOptions['next'])
@@ -299,7 +303,7 @@ function! s:MarkTaskAs(nextState)
 	let l:attributesToRemove = keys(l:currentStateOptions['attributes'])
 
 	for l:attribute in l:attributesToRemove
-	  call s:RemoveAttribute(l:attribute)
+	  call s:RemoveAttribute(l:lineNumber, l:attribute)
 	endfor
 
 	let l:newLineMarker = s:taskStates[l:nextState]['lineMarker']
@@ -316,7 +320,7 @@ function! s:MarkTaskAs(nextState)
 	    call add(l:functionArguments, l:arguments[l:attributeFunctionArgument])
 	  endfor
 	  let l:attributeValue = call(l:attributeConfiguration['function'], l:functionArguments)
-	  call s:AddAttribute(l:attribute, l:attributeValue)
+	  call s:AddAttribute(l:lineNumber, l:attribute, l:attributeValue)
 	endfor
       endif
     endif
@@ -329,8 +333,8 @@ function! s:GetTaskState(lineNumber)
   let l:state = ''
 
   if l:isMatch > -1
-    let l:isDone = s:GetAttribute('done')['start'] != -1
-    let l:isCancelled = s:GetAttribute('cancelled')['start'] != -1
+    let l:isDone = s:GetAttribute(l:line, 'done')['start'] != -1
+    let l:isCancelled = s:GetAttribute(l:line, 'cancelled')['start'] != -1
 
     if l:isDone && l:isCancelled
       let l:state = 'invalid'
@@ -414,4 +418,74 @@ function! s:TasksArchive()
     call cursor(l:lineNr, 0)
     exec 'normal "_dd'
   endfor
+endfunc
+
+" currently sorts by priority attributes, but in the future user will be able
+" to choose this somehow
+function! s:SortTasks()
+  set lz
+
+  let l:cursorPosition = getcurpos()
+  let l:lineNr = 1
+  let l:lastLineNr = line('$')
+  let l:groupheaderOrderedTasks = {}
+  let l:currentSortingProject = { 'name': '', 'lineNr': 0 }
+
+  while l:lineNr <= l:lastLineNr
+    let l:line = getline(l:lineNr)
+
+    if l:line ==# s:archiveSeparator
+      if l:lineNr == l:lastLineNr || s:Trim(getline(l:lineNr + 1)) ==# s:regArchive
+	if l:currentSortingProject['name'] != ''
+	  call s:PasteTasks(l:currentSortingProject['lineNr'], l:groupheaderOrderedTasks[l:currentSortingProject['name']])
+	endif
+	break
+      endif
+    endif
+
+    let l:project = s:Trim(matchstr(l:line, s:regProject))
+
+    if len(l:project)
+      let l:oldSortingProject = copy(l:currentSortingProject)
+      let l:currentSortingProject['name'] = l:project
+      let l:currentSortingProject['lineNr'] = l:lineNr
+      let l:groupheaderOrderedTasks[l:currentSortingProject['name']] = { 'critical': [], 'high': [], 'medium': [], 'low': [] , 'none': [] }
+
+      if l:oldSortingProject['name'] != ''
+	call s:PasteTasks(l:oldSortingProject['lineNr'], l:groupheaderOrderedTasks[l:oldSortingProject['name']])
+      endif
+    else
+      let l:isTask = match(l:line, s:regMarker) > -1
+      if l:isTask == v:true
+	let l:priority = s:GetAttribute(l:lineNr, 'priority')['value']
+	if l:priority == ''
+	  let l:priority = 'none'
+	endif
+	call add(l:groupheaderOrderedTasks[l:currentSortingProject['name']][l:priority], l:line)
+      endif
+    endif
+
+    let l:lineNr = l:lineNr + 1
+  endwhile
+
+  call setpos('.', l:cursorPosition)
+  set nolz
+endfunc
+
+function! s:PasteTasks(targetLineNr, groupheaderTasks)
+  let l:targetLineNr = a:targetLineNr
+  let l:groupheaderTasks = a:groupheaderTasks
+  let l:lowPriorityTasks = reverse(l:groupheaderTasks['low'])
+  let l:mediumPriorityTasks = reverse(l:groupheaderTasks['medium'])
+  let l:highPriorityTasks = reverse(l:groupheaderTasks['high'])
+  let l:criticalPriorityTasks = reverse(l:groupheaderTasks['critical'])
+  let l:allTasks = l:lowPriorityTasks + l:mediumPriorityTasks + l:highPriorityTasks + l:criticalPriorityTasks
+
+  for l:task in l:allTasks
+    call append(l:targetLineNr, l:task)
+  endfor
+
+  let l:startRange = l:targetLineNr + len(l:allTasks) + 1
+  let l:endRange = l:startRange + len(l:allTasks) - 1
+  exec 'silent! ' . l:startRange . ',' . l:endRange . 'delete _'
 endfunc

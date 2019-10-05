@@ -68,13 +68,14 @@ Run the following in a terminal:
 Run `:help Tasks` to view the full documentation.
 
 ## Preset Bindings
-+ `<localleader> n` - create a new task below current line
-+ `<localleader> N` - create a new task above current line
-+ `<localleader> d` - toggle current task between none and complete statuses
-+ `<localleader> x` - toggle current task between none and cancelled statuses
-+ `<localleader> a` - archive completed tasks
++ `<localleader> n`  - create a new task below current line
++ `<localleader> N`  - create a new task above current line
++ `<localleader> d`  - toggle current task between none and complete statuses
++ `<localleader> x`  - toggle current task between none and cancelled statuses
++ `<localleader> a`  - archive completed tasks
 + `<localleader> ml` - mark task as low priority
 + `<localleader> mm` - mark task as medium priority
 + `<localleader> mh` - mark task as high priority
 + `<localleader> mc` - mark task as critical priority
++ `<localleader> S`  - sort tasks based on priority
 

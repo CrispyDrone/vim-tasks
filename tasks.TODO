@@ -4,6 +4,7 @@ documentation:
 bug fixes:
 	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(low)
 	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
+	☐ Fix marking task with priority causing cursor to jump @priority(high)
 	☐ It's possible to create a task above the first group header when it is not on the first line @priority(low)
 
 refactoring:
@@ -13,13 +14,16 @@ refactoring:
 	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc @priority(high)
 
 new features:
+	☐ Add support for new task state 'started' that will then add a 'started' attribute when in progress, and add a 'worked' attribute when it's cancelled or set to done. This can help with tracking time. @priority(high)
+	☐ Automatically move 'started' tasks to the top of the group header @priority(high)
+	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(high)
+	☐ Add support for commands that can sort on importance attribute @priority(high)
+	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium)
 	☐ Support dot command @priority(medium)
 	☐ Add support for absolute due attribute (user will have to enter the date himself) @priority(low)
 	☐ Add support for relative due attribute (user will have to enter the date himself), this will also always add a 'from' attribute or something similar that indicates when the due attribute was added @priority(low)
 	☐ Find out ways to allow for 'tab' completion of dates? @priority(low)
 	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled) @priority(medium)
-	☐ Add support for new task state 'started' that will then add a 'started' attribute when in progress, and add a 'worked' attribute when it's cancelled or set to done. This can help with tracking time. @priority(low)
-	☐ Add support for commands that can sort on importance attribute @priority(high)
 	☐ and on due attribute
 	☐ Allow users to determine whether tasks should be indented or not compared to the group header @priority(low)
 	☐ Allow user to determine whether tasks need to be associated with a group header or not @priority(medium)
