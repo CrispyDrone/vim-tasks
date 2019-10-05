@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 04, 2019
-" Version:	   0.20
+" Version:	   0.30
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -17,10 +17,10 @@ nnoremap <buffer> <localleader>N :call <SID>NewTask(-1)<CR>
 nnoremap <buffer> <localleader>d :call <SID>TaskComplete()<CR>
 nnoremap <buffer> <localleader>x :call <SID>TaskCancel()<CR>
 nnoremap <buffer> <localleader>a :call <SID>TasksArchive()<CR>
-nnoremap <buffer> <localleader>ml :call <SID>AddAttribute('priority', 'low')<CR>
-nnoremap <buffer> <localleader>mm :call <SID>AddAttribute('priority', 'medium')<CR>
-nnoremap <buffer> <localleader>mh :call <SID>AddAttribute('priority', 'high')<CR>
-nnoremap <buffer> <localleader>mc :call <SID>AddAttribute('priority', 'critical')<CR>
+nnoremap <buffer> <localleader>ml :call <SID>SetAttribute('priority', 'low')<CR>
+nnoremap <buffer> <localleader>mm :call <SID>SetAttribute('priority', 'medium')<CR>
+nnoremap <buffer> <localleader>mh :call <SID>SetAttribute('priority', 'high')<CR>
+nnoremap <buffer> <localleader>mc :call <SID>SetAttribute('priority', 'critical')<CR>
 
 " GLOBALS
 
@@ -175,14 +175,18 @@ endfunc
 " returns the start and end cols of an attribute as a dictionary. If the
 " attribute doesn't exist, the start and end are -1.
 function! s:GetAttribute(name)
-  let l:attribute = { 'start': -1, 'end': -1 }
+  let l:attribute = { 'name': '', 'start': -1, 'end': -1, 'value': '' }
   let l:rline = getline('.')
-  let l:regex = g:TasksAttributeMarker . a:name . '\(([^)]*)\)\='
+  let l:regex = g:TasksAttributeMarker . a:name . '\((\([^)]*\))\)\='
   let l:attStart = match(l:rline, regex)
   if l:attStart > -1
     let l:attEnd = matchend(l:rline, l:regex)
+    let l:attribute['name'] = a:name
     let l:attribute['start'] = l:attStart
     let l:attribute['end'] = l:attEnd
+    let l:diff = (l:attEnd - l:attStart) + 1
+    let l:value = matchlist(l:rline, regex)[2]
+    let l:attribute['value'] = l:value
   endif
   return l:attribute
 endfunc
@@ -208,6 +212,18 @@ function! s:RemoveAttribute(name)
     let l:diff = (l:attEnd - l:attStart) + 1
     call cursor(line('.'), l:attStart)
     exec 'normal ' . l:diff . 'dl'
+  endif
+endfunc
+
+function! s:SetAttribute(name, value)
+  let l:attribute = s:GetAttribute(a:name)
+  if l:attribute['start'] == -1
+    call s:AddAttribute(a:name, a:value)
+  else
+    call s:RemoveAttribute(a:name)
+    if l:attribute['value'] !=# a:value
+      call s:AddAttribute(a:name, a:value)
+    endif
   endif
 endfunc
 
