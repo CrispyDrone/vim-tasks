@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.40
+" Version:	   0.50
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -22,6 +22,8 @@ nnoremap <buffer> <localleader>mm :call <SID>SetAttribute('priority', 'medium')<
 nnoremap <buffer> <localleader>mh :call <SID>SetAttribute('priority', 'high')<CR>
 nnoremap <buffer> <localleader>mc :call <SID>SetAttribute('priority', 'critical')<CR>
 nnoremap <buffer> <localleader>S :call <SID>SortTasks()<CR>
+nnoremap <buffer> <localleader>t :call <SID>ToggleTask(-1)<CR>
+nnoremap <buffer> <localleader>T :call <SID>ToggleTask(1)<CR>
 
 " GLOBALS
 
@@ -48,6 +50,7 @@ let b:regesc = '[]()?.*@='
 " LOCALS
 let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
 let s:regProject = '^\(\s*\)\(\(.*' . s:regMarker . '.*\)\@!.\)\+:\s*$'
+let s:regTask = '^\(\s*\)\(' . s:regMarker . '\) \=\(.*\)$'
 let s:regDone = g:TasksAttributeMarker . 'done'
 let s:regCancelled = g:TasksAttributeMarker . 'cancelled'
 let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
@@ -488,4 +491,19 @@ function! s:PasteTasks(targetLineNr, groupheaderTasks)
   let l:startRange = l:targetLineNr + len(l:allTasks) + 1
   let l:endRange = l:startRange + len(l:allTasks) - 1
   exec 'silent! ' . l:startRange . ',' . l:endRange . 'delete _'
+endfunc
+
+function! s:ToggleTask(removeAttributes)
+  let l:line = getline('.')
+  let l:isMatch = match(l:line, s:regTask) > -1
+  if l:isMatch == v:true
+    exec 'silent! s:' . s:regTask . ':\3'
+    if a:removeAttributes
+      exec 'silent! s:@\w\+\(([^)]*)\)\=::g'
+    endif
+  else
+    call s:NewTask(-1)
+    exec 'normal! J'
+    stopinsert
+  endif
 endfunc
