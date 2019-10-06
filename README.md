@@ -78,6 +78,24 @@ Below are all the exposed functions with their default bindings:
 + `<localleader> mc` - mark task as critical priority
 + `<localleader> S`  - sort tasks based on priority
 
+To define your own mappings, you have 2 options. Modify your `vimrc` or add a file `tasks.vim` inside the `after` directory (`.vim/after/`):
+
++ `vimrc`:
+
+  ```
+  augroup tasks
+          autocmd!
+          au Filetype tasks silent! nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
+          au Filetype tasks silent! nmap <buffer> <localleader>td <Plug>(NewTaskDown)
+  augroup END
+  ```
+
++ `.vim/after/ftplugin/tasks.vim` (or `vimfiles/after/ftplugin/tasks.vim` on windows)
+
+  ```
+  nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
+  ```
+
 Anything marked with ¹ in the previous sections will hopefully be configurable in the future.
 
 ## Installation
