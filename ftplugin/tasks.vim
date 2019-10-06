@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.50
+" Version:	   0.51
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -169,10 +169,13 @@ function! s:SetLineMarker(marker)
   " if there is a marker, swap it out.
   " If there is no marker, add it in at first non-whitespace
   let l:line = getline('.')
-  let l:markerMatch = match(l:line, s:regMarker)
-  if l:markerMatch > -1
-    call cursor(line('.'), l:markerMatch + 1)
-    exec 'normal R' . a:marker
+  let l:isTask = match(l:line, s:regTask) > -1
+  if l:isTask == v:true
+    let l:markerMatch = match(l:line, s:regMarker)
+    if l:markerMatch > -1
+      call cursor(line('.'), l:markerMatch + 1)
+      exec 'normal R' . a:marker
+    endif
   endif
 endfunc
 
@@ -283,9 +286,9 @@ endfunc
 function! s:MarkTaskAs(nextState)
   let l:nextState = a:nextState
   let l:line = getline('.')
-  let l:isMatch = match(l:line, s:regMarker)
+  let l:isMatch = match(l:line, s:regTask) > -1
 
-  if l:isMatch > -1
+  if l:isMatch == v:true
     let l:lineNumber = line('.')
     let l:projects = s:GetProjects(l:lineNumber)
 
@@ -332,12 +335,13 @@ endfunc
 
 function! s:GetTaskState(lineNumber)
   let l:line = getline('.')
-  let l:isMatch = match(l:line, s:regMarker)
+  let l:isMatch = match(l:line, s:regTask) > -1
   let l:state = ''
 
-  if l:isMatch > -1
-    let l:isDone = s:GetAttribute(l:line, 'done')['start'] != -1
-    let l:isCancelled = s:GetAttribute(l:line, 'cancelled')['start'] != -1
+  if l:isMatch == v:true
+    let l:isDone = s:GetAttribute(line('.'), 'done')['start'] != -1
+    let l:isCancelled = s:GetAttribute(line('.'), 'cancelled')['start'] != -1
+
 
     if l:isDone && l:isCancelled
       let l:state = 'invalid'
@@ -458,7 +462,7 @@ function! s:SortTasks()
 	call s:PasteTasks(l:oldSortingProject['lineNr'], l:groupheaderOrderedTasks[l:oldSortingProject['name']])
       endif
     else
-      let l:isTask = match(l:line, s:regMarker) > -1
+      let l:isTask = match(l:line, s:regTask) > -1
       if l:isTask == v:true
 	let l:priority = s:GetAttribute(l:lineNr, 'priority')['value']
 	if l:priority == ''

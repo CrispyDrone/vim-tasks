@@ -2,7 +2,6 @@ documentation:
 	☐ Update 'Help' documentation to reflect changes and new features @priority(low)
 
 bug fixes:
-	☐ Currently a line is a task if it has a marker in it, anywhere. A task should instead be optional whitespace, followed by a marker, followed by optional text @priority(medium)
 	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(low)
 	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
 	☐ It's possible to create a task above the first group header when it is not on the first line @priority(low)
@@ -34,6 +33,8 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Fix bug preventing TaskComplete or TaskCancel from toggling when used on a done or cancelled task @priority(critical) @done(2019-10-06 17:12) @project(bug fixes)
+	✓ Currently a line is a task if it has a marker in it, anywhere. A task should instead be optional whitespace, followed by a marker, followed by optional text @priority(medium) @done(2019-10-06 17:12) @project(bug fixes)
 	✓ Allow a regular line to be turned into a task @priority(high) @done(2019-10-06 15:49) @project(new features)
 	✓ Fix marking task with priority causing cursor to jump @priority(high) @done(2019-10-06 13:47) @project(bug fixes)
 	✓ Add support for commands that can sort on importance attribute @priority(high) @done(2019-10-06 13:48) @project(new features)
