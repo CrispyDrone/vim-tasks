@@ -67,16 +67,54 @@ Below are the settings that you can currently customize together with their defa
 + `let g:TasksArchiveSeparator = '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'`
 
 Below are all the exposed functions with their default bindings:
-+ `<localleader> n`  - create a new task below current line
-+ `<localleader> N`  - create a new task above current line
-+ `<localleader> d`  - toggle current task between none and complete statuses
-+ `<localleader> x`  - toggle current task between none and cancelled statuses
-+ `<localleader> a`  - archive completed tasks
-+ `<localleader> ml` - mark task as low priority
-+ `<localleader> mm` - mark task as medium priority
-+ `<localleader> mh` - mark task as high priority
-+ `<localleader> mc` - mark task as critical priority
-+ `<localleader> S`  - sort tasks based on priority
+
++ `(NewTaskUp)`: 
+  + `<localleader>n`
+  + Create a new task below current line.
+
++ `(NewTaskDown)`: 
+  + `<localleader>N`
+  + Create a new task above current line.
+
++ `(TaskComplete)`: 
+  + `<localleader>d`
+  + Toggle current task between none and complete statuses.
+
++ `(TaskCancel)`:
+  + `<localleader>x`
+  + Toggle current task between none and cancelled statuses.
+
++ `(TasksArchive)`:
+  + `<localleader>a`
+  + Archive completed tasks.
+
++ `(MarkPriorityLow)`:
+  + `<localleader>ml`
+  + Mark task as low priority.
+
++ `(MarkPriorityMedium)`:
+  + `<localleader>mm`
+  + Mark task as medium priority.
+
++ `(MarkPriorityHigh)`:
+  + `<localleader>mh`
+  + Mark task as high priority.
+
++ `(MarkPriorityCritical)`:
+  + `<localleader>mc`
+  + Mark a task as critical priority.
+
++ `(TasksSort)`:
+  + `<localleader>S`
+  + Sort tasks based on their priority.
+
++ `(TaskToggle)`:
+  + `<localleader>t`
+  + Transform a task into a regular line and vice versa without deleting any existing attributes.
+
++ `(TaskToggleAndClear)`:
+  + `<localleader>T`
+  + Transform a task into a regular line and vice versa while also deleting any existing attributes.
 
 To define your own mappings, you have 2 options. Modify your `vimrc` or add a file `tasks.vim` inside the `after` directory (`.vim/after/`):
 
@@ -94,6 +132,7 @@ To define your own mappings, you have 2 options. Modify your `vimrc` or add a fi
 
   ```
   nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
+  nmap <buffer> <localleader>td <Plug>(NewTaskDown)
   ```
 
 Anything marked with ¹ in the previous sections will hopefully be configurable in the future.
