@@ -3,7 +3,7 @@ A small lightweight vim plugin to effectively handle your todo lists. Create tod
 
 The todo file is just a plain text document, so you can use it everywhere and use any tool to edit it.
 
-![example](https://raw.githubusercontent.com/irrationalistic/atom-tasks/master/images/tasks_example.png)
+![Todo file example.](./doc/images/example-01.PNG)
 
 ## How to
 ### Create a todo file
