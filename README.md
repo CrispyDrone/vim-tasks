@@ -45,6 +45,9 @@ You can use the following mapping `<localleader>S` to sort all tasks in the docu
 ### Transforming tasks
 To quickly turn a line into a task or vice versa you can use the following mapping: `<localleader>t` or `<localleader>T`. The latter also removes any attributes that are present.
 
+### Starting tasks
+Once you've created a task, you can optionally put it `in-progress` by executing `<localleader>b`. This can help remind you which tasks you were working on and when you started them. It accomplishes the latter by automatically adding a `started` attribute with the current time according to the specified date format.
+
 ### Completing tasks
 Once you've completed the task, you can mark it as `done` or `cancelled` by the following 2 mappings respectively: `<localleader>d` and `<localleader>x`. This will replace the checkbox by a checkmark `✓` in the former case, or by a cancellation mark `✘`.
 
@@ -76,17 +79,21 @@ Below are all the exposed functions with their default bindings:
   + `<localleader>N`
   + Create a new task above current line.
 
++ `(TaskBegin)`: 
+  + `<localleader>b`
+  + Toggle current task between any status and the `in-progress` status.
+
 + `(TaskComplete)`: 
   + `<localleader>d`
-  + Toggle current task between none and complete statuses.
+  + Toggle current task between any status and the `complete` status.
 
 + `(TaskCancel)`:
   + `<localleader>x`
-  + Toggle current task between none and cancelled statuses.
+  + Toggle current task between any status and the `cancelled` status.
 
 + `(TasksArchive)`:
   + `<localleader>a`
-  + Archive completed tasks.
+  + Archive completed (`done`, or `cancelled`) tasks.
 
 + `(MarkPriorityLow)`:
   + `<localleader>ml`

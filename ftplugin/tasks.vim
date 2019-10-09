@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.60
+" Version:	   0.70
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -14,6 +14,7 @@ let b:loaded_tasks = v:true
 " MAPPINGS
 nnoremap <buffer> <Plug>(NewTaskUp) :call <SID>NewTask(-1)<CR>
 nnoremap <buffer> <Plug>(NewTaskDown) :call <SID>NewTask(1)<CR>
+nnoremap <buffer> <Plug>(TaskBegin) :call <SID>TaskBegin()<CR>
 nnoremap <buffer> <Plug>(TaskComplete) :call <SID>TaskComplete()<CR>
 nnoremap <buffer> <Plug>(TaskCancel) :call <SID>TaskCancel()<CR>
 nnoremap <buffer> <Plug>(TasksArchive) :call <SID>TasksArchive()<CR>
@@ -31,6 +32,10 @@ endif
 
 if !hasmapto('<Plug>(NewTaskUp)')
   nmap <buffer> <localleader>N <Plug>(NewTaskUp)
+endif
+
+if !hasmapto('<Plug>(TaskBegin)')
+  nmap <buffer> <localleader>b <Plug>(TaskBegin)
 endif
 
 if !hasmapto('<Plug>(TaskComplete)')
@@ -86,6 +91,7 @@ function! s:initVariable(var, value)
 endfunc
 
 call s:initVariable('g:TasksMarkerBase', '☐')
+call s:initVariable('g:TasksMarkerInProgress', '»')
 call s:initVariable('g:TasksMarkerDone', '✓')
 call s:initVariable('g:TasksMarkerCancelled', '✘')
 call s:initVariable('g:TasksDateFormat', '%Y-%m-%d %H:%M')
@@ -96,7 +102,7 @@ call s:initVariable('g:TasksHeaderArchive', 'Archive')
 let b:regesc = '[]()?.*@='
 
 " LOCALS
-let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
+let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerInProgress, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
 let s:regProject = '^\(\s*\)\(\(.*' . s:regMarker . '.*\)\@!.\)\+:\s*$'
 let s:regTask = '^\(\s*\)\(' . s:regMarker . '\) \=\(.*\)$'
 let s:regDone = g:TasksAttributeMarker . 'done'
@@ -105,39 +111,79 @@ let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
 let s:dateFormat = g:TasksDateFormat
 let s:archiveSeparator = g:TasksArchiveSeparator
 let s:regArchive = g:TasksHeaderArchive . ':'
+let s:markerToTaskState = { g:TasksMarkerInProgress: 'inprogress', g:TasksMarkerDone: 'done', g:TasksMarkerCancelled: 'cancelled', g:TasksMarkerBase: 'none'}
 let s:taskStates = { 
+      \'inprogress': {
+        \'lineMarker': g:TasksMarkerInProgress,
+        \'attributes': {
+          \'started': {
+            \'function': 'strftime',
+            \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> v:true },
+	    \'remove': { nextState, forceRemove -> v:true }
+          \}
+        \},
+        \'next': [ 'none', 'done', 'cancelled' ]
+      \},
       \'done': { 
 	\'lineMarker': g:TasksMarkerDone, 
 	\'attributes': { 
 	  \'project': { 
 	    \'function': 'join', 
-	    \'arguments': [ 'projects', 'separator' ] 
+	    \'arguments': [ 'projects', 'separator' ],
+	    \'add': { prevState, forceRemove -> v:true },
+	    \'remove': { nextState, forceRemove -> v:true }
 	  \}, 
 	  \'done': {
 	    \'function': 'strftime',
-	    \'arguments': [ 'dateFormat' ]
+	    \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> v:true },
+	    \'remove': { nextState, forceRemove -> v:true }
+	  \},
+	  \'worked': {
+	    \'function': 'strftime',
+      	    \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> prevState == 'inprogress' },
+	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
 	  \}
 	\},
-	\'next': [ 'none', 'cancelled' ]
+	\'next': [ 'none', 'inprogress', 'cancelled' ]
       \},
       \'cancelled': { 
 	\'lineMarker': g:TasksMarkerCancelled, 
       	\'attributes': { 
 	  \'project': { 
 	    \'function': 'join', 
-      	    \'arguments': [ 'projects', 'separator' ] 
+      	    \'arguments': [ 'projects', 'separator' ],
+	    \'add': { prevState, forceRemove -> v:true },
+	    \'remove': { nextState, forceRemove -> v:true }
 	  \}, 
 	  \'cancelled': {
 	    \'function': 'strftime',
-      	    \'arguments': [ 'dateFormat' ]
+      	    \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> v:true },
+	    \'remove': { nextState, forceRemove -> v:true }
+	  \},
+	  \'worked': {
+	    \'function': 'strftime',
+      	    \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> prevState == 'inprogress' },
+	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
 	  \}
 	\},
-	\'next': [ 'none', 'done' ] 
+	\'next': [ 'none', 'inprogress', 'done' ] 
       \},
       \'none' : {
 	\'lineMarker': g:TasksMarkerBase, 
-      	\'attributes': {},
-      	\'next': [ 'done', 'cancelled' ] 
+      	\'attributes': {
+	  \'worked': {
+	    \'function': 'strftime',
+      	    \'arguments': [ 'dateFormat' ],
+	    \'add': { prevState, forceRemove -> v:false },
+	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
+	  \}
+        \},
+      	\'next': [ 'inprogress', 'done', 'cancelled' ] 
       	\}
       \}
 
@@ -383,26 +429,23 @@ endfunc
 
 function! s:GetTaskState(lineNumber)
   let l:line = getline('.')
-  let l:isMatch = match(l:line, s:regTask) > -1
+  let l:match = matchlist(l:line, s:regTask)
   let l:state = ''
 
-  if l:isMatch == v:true
-    let l:isDone = s:GetAttribute(line('.'), 'done')['start'] != -1
-    let l:isCancelled = s:GetAttribute(line('.'), 'cancelled')['start'] != -1
-
-
-    if l:isDone && l:isCancelled
-      let l:state = 'invalid'
-    elseif l:isDone
-      let l:state = 'done'
-    elseif l:isCancelled
-      let l:state = 'cancelled'
+  if len(l:match) > 0
+    let l:taskMarker = l:match[2]
+    if has_key(s:markerToTaskState, l:taskMarker)
+      let l:state = s:markerToTaskState[l:taskMarker]
     else
-      let l:state = 'none'
+      let l:state = 'invalid'
     endif
   endif
 
   return l:state
+endfunc
+
+function! s:TaskBegin()
+  call s:MarkTaskAs('inprogress')
 endfunc
 
 function! s:TaskComplete()
@@ -430,6 +473,7 @@ function! s:TasksArchive()
   " go over every line. Compile a list of all cancelled or completed items
   " until the end of the file is reached or the archive project is
   " detected, whicheved happens first.
+  let l:savedCursorPosition = getcurpos()
   let l:archiveLine = -1
   let l:completedTasks = []
   let l:lineNr = 0
@@ -473,6 +517,7 @@ function! s:TasksArchive()
     call cursor(l:lineNr, 0)
     exec 'normal "_dd'
   endfor
+  call setpos('.', l:savedCursorPosition)
 endfunc
 
 " currently sorts by priority attributes, but in the future user will be able
