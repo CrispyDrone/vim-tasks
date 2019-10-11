@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.70
+" Version:	   0.80
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -108,7 +108,7 @@ let s:regTask = '^\(\s*\)\(' . s:regMarker . '\) \=\(.*\)$'
 let s:regDone = g:TasksAttributeMarker . 'done'
 let s:regCancelled = g:TasksAttributeMarker . 'cancelled'
 let s:regAttribute = g:TasksAttributeMarker . '\w\+\(([^)]*)\)\='
-let s:dateFormat = g:TasksDateFormat
+let s:dateFormat =  g:TasksDateFormat
 let s:archiveSeparator = g:TasksArchiveSeparator
 let s:regArchive = g:TasksHeaderArchive . ':'
 let s:markerToTaskState = { g:TasksMarkerInProgress: 'inprogress', g:TasksMarkerDone: 'done', g:TasksMarkerCancelled: 'cancelled', g:TasksMarkerBase: 'none'}
@@ -117,10 +117,16 @@ let s:taskStates = {
         \'lineMarker': g:TasksMarkerInProgress,
         \'attributes': {
           \'started': {
-            \'function': 'strftime',
-            \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> v:true },
+            \'function': 's:AddStartedAttribute',
+            \'arguments': ['dateFormat' ],
+	    \'add': { prevState -> v:true },
 	    \'remove': { nextState, forceRemove -> v:true }
+          \},
+	  \'worked': {
+            \'function': 's:CalculateWorkedTime',
+            \'arguments': [ 'started', 'worked', 'dateFormat' ],
+	    \'add': { prevState -> v:false },
+	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
           \}
         \},
         \'next': [ 'none', 'done', 'cancelled' ]
@@ -131,19 +137,19 @@ let s:taskStates = {
 	  \'project': { 
 	    \'function': 'join', 
 	    \'arguments': [ 'projects', 'separator' ],
-	    \'add': { prevState, forceRemove -> v:true },
+	    \'add': { prevState -> v:true },
 	    \'remove': { nextState, forceRemove -> v:true }
 	  \}, 
 	  \'done': {
 	    \'function': 'strftime',
 	    \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> v:true },
+	    \'add': { prevState -> v:true },
 	    \'remove': { nextState, forceRemove -> v:true }
 	  \},
 	  \'worked': {
-	    \'function': 'strftime',
-      	    \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> prevState == 'inprogress' },
+	    \'function': 's:CalculateWorkedTime',
+      	    \'arguments': [ 'started', 'worked', 'dateFormat' ],
+	    \'add': { prevState -> prevState == 'inprogress' },
 	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
 	  \}
 	\},
@@ -155,19 +161,19 @@ let s:taskStates = {
 	  \'project': { 
 	    \'function': 'join', 
       	    \'arguments': [ 'projects', 'separator' ],
-	    \'add': { prevState, forceRemove -> v:true },
+	    \'add': { prevState -> v:true },
 	    \'remove': { nextState, forceRemove -> v:true }
 	  \}, 
 	  \'cancelled': {
 	    \'function': 'strftime',
       	    \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> v:true },
+	    \'add': { prevState -> v:true },
 	    \'remove': { nextState, forceRemove -> v:true }
 	  \},
 	  \'worked': {
-	    \'function': 'strftime',
-      	    \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> prevState == 'inprogress' },
+	    \'function': 's:CalculateWorkedTime',
+      	    \'arguments': [ 'started', 'worked', 'dateFormat' ],
+	    \'add': { prevState -> prevState == 'inprogress' },
 	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
 	  \}
 	\},
@@ -177,9 +183,9 @@ let s:taskStates = {
 	\'lineMarker': g:TasksMarkerBase, 
       	\'attributes': {
 	  \'worked': {
-	    \'function': 'strftime',
-      	    \'arguments': [ 'dateFormat' ],
-	    \'add': { prevState, forceRemove -> v:false },
+	    \'function': 's:CalculateWorkedTime',
+      	    \'arguments': [ 'started', 'worked', 'dateFormat' ],
+	    \'add': { prevState -> v:false },
 	    \'remove': { nextState, forceRemove -> forceRemove == v:true }
 	  \}
         \},
@@ -331,6 +337,42 @@ function! s:SetAttribute(name, value)
   call setpos('.', l:cursorPosition)
 endfunc
 
+function! s:CalculateWorkedTime(...)
+  let l:dateFormat=a:3
+  let l:started=a:1
+  let l:currentlyWorked=a:2
+
+  let l:startedAsLocalTime = matchlist(l:started, ' / \(\d\+\)')[1]
+  if l:startedAsLocalTime == ''
+    return
+  endif
+
+  "let l:startedAsLocalTime = s:GetLocalTimeFromString(l:dateFormat, l:started)
+  let l:totalWorked = l:currentlyWorked + (localtime() - l:startedAsLocalTime)
+
+  call s:SetAttribute('worked', string(l:totalWorked))
+endfunc
+
+function! s:AddStartedAttribute(dateFormat)
+  return strftime(a:dateFormat) . ' / ' . localtime()
+endfunc
+
+"s:regParseTimeYears = '%Y'
+"s:regParseTimeDays = '%d'
+"s:regParseTimeMonths = '%m'
+"s:regParseTimeHours = '%H'
+"s:regParseTimeMinutes = '%M'
+"function! s:GetLocalTimeFromString(dateFormat, timeAsString)
+"  let l:time = strftime(a:dateFormat)
+"  let l:templateString = ''
+"  
+"  for l:char in split(a:timeAsString, '\zs')
+"
+"  endfor
+"
+"  return localtime() - 600
+"endfunc
+
 " returns a list of all projects a task is associated with. A task is
 " associated with its immediate parent project, but also all parent projects
 " of the immediate parent project. A project is a parent of another project
@@ -377,7 +419,7 @@ function! s:GetProjectName(projectLine)
   return strcharpart(l:trimmedProjectLine, 0, strchars(l:trimmedProjectLine) - 1)
 endfunc
 
-function! s:MarkTaskAs(nextState)
+function! s:MarkTaskAs(nextState, forceRemoveAttributes)
   let l:nextState = a:nextState
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regTask) > -1
@@ -400,28 +442,44 @@ function! s:MarkTaskAs(nextState)
       let l:validNextStates = copy(l:currentStateOptions['next'])
       let l:isValidNextState = !empty(filter(l:validNextStates, 'v:val ==# ' . "l:nextState"))
       if (l:isValidNextState == v:true)
-	let l:attributesToRemove = keys(l:currentStateOptions['attributes'])
-
-	for l:attribute in l:attributesToRemove
-	  call s:RemoveAttribute(l:lineNumber, l:attribute)
-	endfor
-
 	let l:newLineMarker = s:taskStates[l:nextState]['lineMarker']
 	let l:newAttributes = s:taskStates[l:nextState]['attributes']
 
 	call s:SetLineMarker(l:newLineMarker)
-	let l:arguments = { 'projects': l:projects, 'separator': ' \ ', 'dateFormat': s:dateFormat }
+	let l:arguments = { 'projects': l:projects, 'separator': ' \ ', 'dateFormat': g:TasksDateFormat, 'started': s:GetAttribute(l:lineNumber, 'started')['value'], 'worked': s:GetAttribute(l:lineNumber, 'worked')['value'] }
 
 	for l:attribute in keys(l:newAttributes)
 	  let l:attributeConfiguration = l:newAttributes[l:attribute]
+	  let l:ToAddLambda = l:attributeConfiguration['add']
+	  let l:toAdd = l:ToAddLambda(l:currentState)
+
+	  if l:toAdd == v:false
+	    continue
+	  endif
+
 	  let l:attributeFunctionArguments = l:attributeConfiguration['arguments']
 	  let l:functionArguments = []
+
 	  for l:attributeFunctionArgument in l:attributeFunctionArguments
 	    call add(l:functionArguments, l:arguments[l:attributeFunctionArgument])
 	  endfor
+
+	  echo l:functionArguments
 	  let l:attributeValue = call(l:attributeConfiguration['function'], l:functionArguments)
 	  call s:AddAttribute(l:lineNumber, l:attribute, l:attributeValue)
 	endfor
+
+	let l:attributesToRemove = keys(l:currentStateOptions['attributes'])
+
+	for l:attribute in l:attributesToRemove
+	  let l:ToRemoveLambda = l:currentStateOptions['attributes'][l:attribute]['remove']
+	  let l:toRemove = l:ToRemoveLambda(l:nextState, a:forceRemoveAttributes)
+
+	  if l:toRemove == v:true
+	    call s:RemoveAttribute(l:lineNumber, l:attribute)
+	  endif
+	endfor
+
       endif
     endif
   endif
@@ -445,15 +503,15 @@ function! s:GetTaskState(lineNumber)
 endfunc
 
 function! s:TaskBegin()
-  call s:MarkTaskAs('inprogress')
+  call s:MarkTaskAs('inprogress', 0)
 endfunc
 
 function! s:TaskComplete()
-  call s:MarkTaskAs('done')
+  call s:MarkTaskAs('done', 0)
 endfunc
 
 function! s:TaskCancel()
-  call s:MarkTaskAs('cancelled')
+  call s:MarkTaskAs('cancelled', 0)
 endfunc
 
 " Checks whether a specific line has been marked as done or cancelled.
