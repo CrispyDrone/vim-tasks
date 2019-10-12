@@ -3,24 +3,27 @@ documentation:
 	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme?
 
 bug fixes:
-	☐ When sorting tasks on priority, duplicates are sometimes created... It seems to happen when you have empty lines below the group header @priority(critical)
 	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(medium)
 	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
 	☐ It's possible to create a task above the first group header when it is not on the first line @priority(low)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
-	☐ Any state that's required by MarkTaskAs should be passed to it (see the arguments required for executing the functions necessary for adding attributes) @priority(medium)
 	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc @priority(high)
+	☐ Any state that's required by MarkTaskAs should be passed to it (see the arguments required for executing the functions necessary for adding attributes) @priority(medium)
 	☐ Change BelongsToProject to GetProject(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
 	☐ Change BelongsToArchive to GetArchive(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
 	☐ Would it be possible to not have this be a purely parsing based plugin, but instead have proper datastructures that get persisted to a file?? @priority(low)
 
+testing:
+	☐ Find ways to automatically do regression testing, see vader? @priority(low)
+
 new features:
-	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
+	☐ Allow users to specify whether during sorting empty lines before the first task in a header, and in between tasks need to be removed @priority(low)
 	☐ Automatically move 'started' tasks to the top of the group header @priority(high)
 	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(high)
 	☐ Support dot command @priority(high)
+	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
 	☐ When changing from in progress to another state, it should add the 'worked' attribute @priority(medium)
 	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium)
 	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled) @priority(medium)
@@ -40,6 +43,8 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ When sorting tasks on priority, duplicates are sometimes created... It seems to happen when you have empty lines below the group header or in between tasks @priority(critical) @done(2019-10-12 19:39) @project(bug fixes) @worked(1h39min)
+	✓ Sorting tasks doesn't work when there's no archive section yet... ?? @priority(critical) @done(2019-10-12 18:20) @project(bug fixes) @worked(1min)
 	✓ Prevent cursor from moving when marking a task as done, cancelled, or started @priority(high) @done(2019-10-12 17:58) @project(bug fixes) @worked(1min)
 	✓ Update issue with 'after' directory in readme @done(2019-10-12 17:49) @project(documentation) @worked(1min)
 	✓ Update missing 'silent!' in 'after\ftplugin\tasks.vim` in readme? @done(2019-10-12 17:49) @project(documentation) @worked(1min)

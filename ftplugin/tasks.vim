@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.10.2
+" Version:	   0.10.3
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -580,15 +580,13 @@ function! s:SortTasks()
   let l:lastLineNr = line('$')
   let l:groupheaderOrderedTasks = {}
   let l:currentSortingProject = { 'name': '', 'lineNr': 0 }
+  let l:lastPriority = 'critical'
 
   while l:lineNr <= l:lastLineNr
     let l:line = getline(l:lineNr)
 
     if l:line ==# s:archiveSeparator
       if l:lineNr == l:lastLineNr || s:Trim(getline(l:lineNr + 1)) ==# s:regArchive
-	if l:currentSortingProject['name'] != ''
-	  call s:PasteTasks(l:currentSortingProject['lineNr'], l:groupheaderOrderedTasks[l:currentSortingProject['name']])
-	endif
 	break
       endif
     endif
@@ -602,8 +600,9 @@ function! s:SortTasks()
       let l:groupheaderOrderedTasks[l:currentSortingProject['name']] = { 'critical': [], 'high': [], 'medium': [], 'low': [] , 'none': [] }
 
       if l:oldSortingProject['name'] != ''
-	call s:PasteTasks(l:oldSortingProject['lineNr'], l:groupheaderOrderedTasks[l:oldSortingProject['name']])
+	call s:PasteTasks(l:oldSortingProject['lineNr'], l:groupheaderOrderedTasks[l:oldSortingProject['name']], l:lastPriority)
       endif
+      let l:lastPriority = 'critical'
     else
       let l:isTask = match(l:line, s:regTask) > -1
       if l:isTask == v:true
@@ -611,20 +610,33 @@ function! s:SortTasks()
 	if l:priority == ''
 	  let l:priority = 'none'
 	endif
+	let l:lastPriority = l:priority
 	call add(l:groupheaderOrderedTasks[l:currentSortingProject['name']][l:priority], l:line)
+      else
+	call add(l:groupheaderOrderedTasks[l:currentSortingProject['name']][l:lastPriority], l:line)
       endif
     endif
 
     let l:lineNr = l:lineNr + 1
   endwhile
 
+  if l:currentSortingProject['name'] != ''
+    call s:PasteTasks(l:currentSortingProject['lineNr'], l:groupheaderOrderedTasks[l:currentSortingProject['name']], l:lastPriority)
+  endif
+
   call setpos('.', l:cursorPosition)
   set nolz
 endfunc
 
-function! s:PasteTasks(targetLineNr, groupheaderTasks)
+function! s:PasteTasks(targetLineNr, groupheaderTasks, lastPriority)
   let l:targetLineNr = a:targetLineNr
   let l:groupheaderTasks = a:groupheaderTasks
+
+  " remove single empty separation line between last task and next header
+  if match(l:groupheaderTasks[a:lastPriority], '^\s*$')
+    call remove(l:groupheaderTasks[a:lastPriority], -1)
+  endif
+
   let l:lowPriorityTasks = reverse(l:groupheaderTasks['low'])
   let l:mediumPriorityTasks = reverse(l:groupheaderTasks['medium'])
   let l:highPriorityTasks = reverse(l:groupheaderTasks['high'])
