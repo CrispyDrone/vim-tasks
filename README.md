@@ -72,57 +72,57 @@ Below are the settings that you can currently customize together with their defa
 
 Below are all the exposed functions with their default bindings:
 
-+ `(NewTaskUp)`: 
++ `(TasksNewTaskUp)`: 
   + `<localleader>n`
   + Create a new task below current line.
 
-+ `(NewTaskDown)`: 
++ `(TasksNewTaskDown)`: 
   + `<localleader>N`
   + Create a new task above current line.
 
-+ `(TaskBegin)`: 
++ `(TaskBeginTask)`: 
   + `<localleader>b`
   + Toggle current task between any status and the `in-progress` status.
     + This adds the `started` attribute when the task is `in-progress`
     + This adds the `worked` attribute when the task is no longer in progress.
 
-+ `(TaskComplete)`: 
++ `(TasksCompleteTask)`: 
   + `<localleader>d`
   + Toggle current task between any status and the `complete` status.
 
-+ `(TaskCancel)`:
++ `(TasksCancelTask)`:
   + `<localleader>x`
   + Toggle current task between any status and the `cancelled` status.
 
-+ `(TasksArchive)`:
++ `(TasksArchiveTasks)`:
   + `<localleader>a`
   + Archive completed (`done`, or `cancelled`) tasks.
 
-+ `(MarkPriorityLow)`:
++ `(TasksMarkPriorityLow)`:
   + `<localleader>ml`
   + Mark task as low priority.
 
-+ `(MarkPriorityMedium)`:
++ `(TasksMarkPriorityMedium)`:
   + `<localleader>mm`
   + Mark task as medium priority.
 
-+ `(MarkPriorityHigh)`:
++ `(TasksMarkPriorityHigh)`:
   + `<localleader>mh`
   + Mark task as high priority.
 
-+ `(MarkPriorityCritical)`:
++ `(TasksMarkPriorityCritical)`:
   + `<localleader>mc`
   + Mark a task as critical priority.
 
-+ `(TasksSort)`:
++ `(TasksSortTasks)`:
   + `<localleader>S`
   + Sort tasks based on their priority.
 
-+ `(TaskToggle)`:
++ `(TasksToggleTask)`:
   + `<localleader>t`
   + Transform a task into a regular line and vice versa without deleting any existing attributes.
 
-+ `(TaskToggleAndClear)`:
++ `(TasksToggleAndClearTask)`:
   + `<localleader>T`
   + Transform a task into a regular line and vice versa while also deleting any existing attributes.
 
@@ -133,16 +133,16 @@ To define your own mappings, you have 2 options. Modify your `vimrc` or add a fi
   ```
   augroup tasks
           autocmd!
-          au Filetype tasks silent! nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
-          au Filetype tasks silent! nmap <buffer> <localleader>td <Plug>(NewTaskDown)
+          au Filetype tasks silent! nmap <buffer> <localleader>tu <Plug>(TasksNewTaskUp)
+          au Filetype tasks silent! nmap <buffer> <localleader>td <Plug>(TasksNewTaskDown)
   augroup END
   ```
 
 + `.vim/after/ftplugin/tasks.vim` (or `vimfiles/after/ftplugin/tasks.vim` on windows)
 
   ```
-  silent! nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
-  silent! nmap <buffer> <localleader>td <Plug>(NewTaskDown)
+  silent! nmap <buffer> <localleader>tu <Plug>(TasksNewTaskUp)
+  silent! nmap <buffer> <localleader>td <Plug>(TasksNewTaskDown)
   ```
 
 Anything marked with ¹ in the previous sections will hopefully be configurable in the future.

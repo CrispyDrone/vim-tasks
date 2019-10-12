@@ -1,9 +1,8 @@
 documentation:
-	☐ Update 'Help' documentation to reflect changes and new features @priority(low)
+	☐ Finalize updating 'Help' file @priority(low)
 	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
 
 bug fixes:
-	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
@@ -40,6 +39,9 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Bug when sorting tasks, first group header, task without priority is removed and duplicates are added ?? @priority(critical) @done(2019-10-13 00:25) @project(bug fixes)
+	✓ Update 'Help' documentation to reflect changes and new features @priority(low) @done(2019-10-13 00:10) @project(documentation)
+	✘ You can copy paste a task above the Archive header, and then complete it @priority(low) @cancelled(2019-10-12 21:18) @project(bug fixes)
 	✓ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(medium) @done(2019-10-12 21:08) @project(bug fixes) @worked(4min)
 	✓ It's possible to create a task above the first group header when it is not on the first line @priority(low) @done(2019-10-12 21:13) @project(bug fixes)
 	✓ When changing from in progress to another state, it should add the 'worked' attribute @priority(medium) @done(2019-10-12 19:47) @project(new features)

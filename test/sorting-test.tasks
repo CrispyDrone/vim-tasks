@@ -1,7 +1,13 @@
 header:
+	☐ asldkjf
+
 
   ☐ Task 3 @priority(low)
+
+	☐ task without priority
+
   ☐ Task 1 @priority(medium)
+
   ☐ Task 2 @priority(high)
 
 header2:

@@ -3,29 +3,40 @@
                 ,--------.              ,--.            
                 '--.  .--',--,--. ,---. |  |,-.  ,---.  
                    |  |  ' ,-.  |(  .-' |     / (  .-'  
-                   |  |  \ '-'  |.-'  `)|  \  \ .-'  `) 
-                   `--'   `--`--'`----' `--'`--'`----'  
+                   |  |  \ '-'  |.'  `)  |  \  \ .'  `) 
+                   ``--'   ```--``--'``----'  ``--'``--'``----'  
 
 ==============================================================================
 CONTENTS                                                       *TasksContents*
 
     1. Intro.........................................|Tasks|
-    2. Tasks Settings................................|TasksSettings|
-    3. Tasks API.....................................|TasksAPI|
-    4. Mappings......................................|TasksMappings|
-    5. Changelog.....................................|TasksChangelog|
-    6. Credits.......................................|TasksCredits|
+    2. How to........................................|TasksUserGuide|
+       2.1. Create a todo file.......................|TasksCreateTodo|
+       2.2. Create a project.........................|TasksCreateProject|
+       2.3. Adding a task............................|TasksAddTask|
+       2.4. Starting a task..........................|TasksStartTask|
+       2.5. Completing a task........................|TasksCompleteTasks|
+       2.6. Add attributes...........................|TasksAddAttributes|
+       2.7. Setting a priority.......................|TasksSetPriority|
+       2.8. Sorting tasks by priority................|TasksSorting|
+       2.9. Toggling line <--> task..................|TasksToggling|
+       2.10. Using nested projects...................|TasksNestedProjects|
+    3. Tasks Settings................................|TasksSettings|
+    4. Tasks API.....................................|TasksAPI|
+    5. Mappings......................................|TasksMappings|
+    6. Changelog.....................................|TasksChangelog|
+    7. Credits.......................................|TasksCredits|
 
 ==============================================================================
 1. Intro                                                               *Tasks*
 
-Tasks is a plugin built to help manage plain-text todo lists. Each file is
-simply utf-8, so it will be readable in other text editors and doesn't need
-any fancy gui components.
+Tasks is a lightweight plugin built to help manage plain-text todo lists. 
+Each file is simply utf-8, making it readable in other text editors without 
+requiring any fancy gui components.
 
-You can add, complete, cancel, and archive tasks from each todo list file.
-Configuration will allow you to customize the different aspects of how the
-markers are set up as well as the timestamping of completed tasks.
+You can add, start, complete, cancel, and archive tasks from each todo list 
+file. Configuration will allow you to customize the different aspects of how 
+the markers are set up as well as the timestamping of completed tasks.
 
 The plugin allows you to manage your task lists without leaving the editor,
 which improves workflow. Since it is essentially just a syntax, you are also
@@ -33,13 +44,108 @@ able to use all the core vim commands alongside the additional utility methods
 provided below.
 
 ==============================================================================
-2. Tasks Settings                                                *TasksSettings*
+2. How to                                                       *TasksUserGuide*
+
+2.1. Create a todo file                                        *TasksCreateTodo*
+
+Any file with a name matching one of the following patterns as a tasks file by 
+vim:
+
+	*.TODO
+    *.todo
+    *.todolist
+    *.taskpaper
+    *.tasks
+    TODO
+    
+2.2. Create a project                                       *TasksCreateProject*
+
+Currently all tasks need to be associated with a project. You can create a
+project by having a single line end in a ':' (without quotes). It will be
+highlighted. For example:
+
+    Bug fixes:
+
+2.3. Adding a task                                                *TasksAddTask*
+
+Once you have a project, you can start adding tasks to it using |NewTaskUp| or
+|NewTaskDown|. These are by default mapped to <localleader>n and
+<localleader>N respectively. A task consists of a single indented line
+according to the project's depth i.e. how nested it is starting with one of
+the |TaskMarkerBase| symbols.  
+
+2.4. Starting a task                                            *TasksStartTask*
+
+If you want, you set a task as {in-progress}. This will add a {started}
+attribute consisting of a timestamp according to |TasksDataFormat| and a unix
+timestamp for technical reasons. Once you change the state from being in
+progress to anything else, another attribute {worked} will be added that shows
+how long you've spend on this task. By default this uses the <localleader>b
+mapping.
+
+2.5. Completing a task                                      *TasksCompleteTasks*
+
+You can complete a task either by marking it as {done} or {cancelled}. This
+will add 2 attributes {project}, and {done} or {cancelled} as well as changing
+the |TaskMarkerBase|, which can be configured |TasksSettings|. {project} will have 
+as value the project the task is associated with or the list of tasks in case 
+of a nested task. The {done} and {cancelled} attributes receive a timestamp as 
+configured by |TasksDateFormat|. 
+
+2.6. Adding attributes                                      *TasksAddAttributes*
+
+You can add any attributes you like to your tasks using the
+|TasksAttributeMarker|. Attributes optionally take a value in between
+parentheses. For example:
+
+    @due(tuesday)
+    @important
+
+Some attributes are used by Tasks such as {project}, {done}, {cancelled}, {started},
+{worked}, and {priority}. Assigning these manually can have undesired effects.
+
+2.7. Setting a priority                                       *TasksSetPriority*
+
+The {priority} attribute has special support. You can mark a task as {low},
+{medium}, {high}, or {critical} priority. All have their own highlighting to
+make them stand out. By default you can set the priority with the following
+mapping:
+
+    <localleader>m{priority-level} 
+
+where priority level is the first letter of the priority levels.
+
+2.8. Sorting tasks by priority                                    *TasksSorting*
+
+You can sort tasks by priority using the <localleader>S mapping.
+
+2.9. Toggling line <--> task                                     *TasksToggling*
+
+To tranform a regular line into a task or vice versa use <localleader>t.
+
+2.10. Using nested projects                                *TasksNestedProjects*
+
+You can easily nest projects by indenting them for example:
+
+> documentation:
+>   Readme:
+>     ☐ Add 'Roadmap' section
+>   
+>   Help:
+>     ☐ Describe new api functions
+
+==============================================================================
+3. Tasks Settings                                                *TasksSettings*
 
                                                            *g:TasksMarkerBase*
 Default: ☐
 Defines the default marker for an incomplete task >
     let g:TasksMarkerBase = '☐'
-<
+
+                                                    *g:TasksMarkerInProgress*
+Default: » 											
+Defines the default marker for a task that is in progress
+    let g:TasksMarkerInProgress = '»'
 
                                                             *g:TasksMarkerDone*
 Default: ✔
@@ -74,26 +180,34 @@ Separates the archive project from the rest of the tasks/projects >
     let g:TasksArchiveSeparator = '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿'
 <
 ==============================================================================
-3. Tasks API                                                        *TasksAPI*
+4. Tasks API                                                        *TasksAPI*
 
-NewTask({direction})                                               *NewTask()*
-    Create a new task according to the direction given. If the value is 1,
-    the task will be created below the cursor's line. If it is -1, it will
-    be created above. Editor will enter insert mode after running the command.
+(TasksNewTaskUp)                                               *TasksNewTaskUp*
+    Create a new task above the cursor's line. Editor will enter insert mode 
+    after running the command.
 
-TaskComplete()                                                *TaskComplete()*
+(TasksNewTaskUp)                                             *TasksNewTaskDown*
+    Create a new task above the cursor's line. Editor will enter insert mode 
+    after running the command.
+
+(TasksBeginTask)                                                *TaskBeginTask*
+    Set the task's state to {in-progress}. This will give it the
+    |TasksMarkerInProgress| marker and a {started} attribute. When changing to
+    to another state, the {started} attribute will be removed, and replaced by
+    a {worked} attribute.
+
+(TasksCompleteTask)                                          *TaskCompleteTask*
     If the cursor (or selection) is over any task lines, they will be given
     the completed marker as well as two attributes: @done with the current
     timestamp, and @project, with a delineated path of nested projects.
 
-
-TaskCancel()                                                    *TaskCancel()*
+(TasksCancelTask)                                              *TaskCancelTask*
     If the cursor (or selection) is over any task lines, they will be given
     the cancelled marker as well as two attributes: @cancelled with the
     current timestamp, and @project, with a delineated path of
     nested projects.
 
-TasksArchive()                                                *TasksArchive()*
+(TasksArchiveTasks)                                         *TasksArchiveTasks*
     Each line in the file will be traversed from top to bottom, seeking any
     completed (done or cancelled) tasks. If the 'Archive' project is
     encountered, it will stop searching. If no 'Archive' is found, it
@@ -101,17 +215,55 @@ TasksArchive()                                                *TasksArchive()*
     project, it will move all the completed tasks to the top of the list
     in the order they are found and remove them from the previous sections.
 
-==============================================================================
-4. Tasks Mappings                                              *TasksMappings*
+(TasksMarkPriorityLow)                                   *TasksMarkPriorityLow*
+(TasksMarkPriorityMedium)                             *TasksMarkPriorityMedium*
+(TasksMarkPriorityHigh)                                 *TasksMarkPriorityHigh*
+(TasksMarkPriorityCritical)                         *TasksMarkPriorityCritical*
+    Mark a task with the specified priority.
 
-*<leader>n* Add a new task below the current line
-*<leader>N* Add a new task above the current line
-*<leader>d* Complete the current task(s)
-*<leader>x* Cancel the current task(s)
-*<leader>a* Update/build the archives
+(TasksSortTasks)                                               *TasksSortTasks*
+    Sort all tasks in the todo file according to priority on a per project
+    basis.
+
+(TasksToggleTask)                                             *TasksToggleTask*
+    Transform a regular line into a task or vice versa.
+
+(TasksToggleAndClearTask)                             *TasksToggleAndClearTask*
+    Same as |TasksToggleTask| however this also clears any existing
+    attributes.
+
 
 ==============================================================================
-5. Changelog                                                  *TasksChangelog*
+5. Tasks Mappings                                              *TasksMappings*
+
+*<localleader>n* Add a new task below the current line
+
+*<localleader>N* Add a new task above the current line
+
+*<localleader>b* Set task to in progress 
+
+*<localleader>t* Toggle between a task and a regular line
+
+*<localleader>T* Toggle between task and regular line, while clearing attributes
+
+*<localleader>d* Complete the current task
+
+*<localleader>x* Cancel the current task
+
+*<localleader>a* Update/build the archives
+
+*<localleader>S* Sort all tasks per project according to priorities
+
+*<localleader>ml* Mark task as low priority
+
+*<localleader>mm* Mark task as medium priority
+
+*<localleader>mh* Mark task as high priority
+
+*<localleader>mc* Mark task as critical priority
+
+==============================================================================
+6. Changelog                                                  *TasksChangelog*
 
 1.0.0
     - Added in settings
@@ -125,7 +277,7 @@ TasksArchive()                                                *TasksArchive()*
     - Archiving
 
 ==============================================================================
-6. Credits                                                      *TasksCredits*
+7. Credits                                                      *TasksCredits*
 
 The original inspiration for this plugin was written by user 'aziz' on github:
     https://github.com/aziz/PlainTasks

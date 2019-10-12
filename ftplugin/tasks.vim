@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.10.4
+" Version:	   0.11.0
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -12,70 +12,70 @@ endif
 let b:loaded_tasks = v:true
 
 " MAPPINGS
-nnoremap <buffer> <Plug>(NewTaskUp) :call <SID>NewTask(-1)<CR>
-nnoremap <buffer> <Plug>(NewTaskDown) :call <SID>NewTask(1)<CR>
-nnoremap <buffer> <Plug>(TaskBegin) :call <SID>TaskBegin()<CR>
-nnoremap <buffer> <Plug>(TaskComplete) :call <SID>TaskComplete()<CR>
-nnoremap <buffer> <Plug>(TaskCancel) :call <SID>TaskCancel()<CR>
-nnoremap <buffer> <Plug>(TasksArchive) :call <SID>TasksArchive()<CR>
-nnoremap <buffer> <Plug>(MarkPriorityLow) :call <SID>SetAttribute('priority', 'low')<CR>
-nnoremap <buffer> <Plug>(MarkPriorityMedium) :call <SID>SetAttribute('priority', 'medium')<CR>
-nnoremap <buffer> <Plug>(MarkPriorityHigh) :call <SID>SetAttribute('priority', 'high')<CR>
-nnoremap <buffer> <Plug>(MarkPriorityCritical) :call <SID>SetAttribute('priority', 'critical')<CR>
-nnoremap <buffer> <Plug>(TasksSort) :call <SID>SortTasks()<CR>
-nnoremap <buffer> <Plug>(TaskToggle) :call <SID>ToggleTask(-1)<CR>
-nnoremap <buffer> <Plug>(TaskToggleAndClear) :call <SID>ToggleTask(1)<CR>
+nnoremap <buffer> <Plug>(TasksNewTaskUp) :call <SID>NewTask(-1)<CR>
+nnoremap <buffer> <Plug>(TasksNewTaskDown) :call <SID>NewTask(1)<CR>
+nnoremap <buffer> <Plug>(TasksBeginTask) :call <SID>TaskBegin()<CR>
+nnoremap <buffer> <Plug>(TasksCompleteTask) :call <SID>TaskComplete()<CR>
+nnoremap <buffer> <Plug>(TasksCancelTask) :call <SID>TaskCancel()<CR>
+nnoremap <buffer> <Plug>(TasksArchiveTasks) :call <SID>TasksArchive()<CR>
+nnoremap <buffer> <Plug>(TasksMarkPriorityLow) :call <SID>SetAttribute('priority', 'low')<CR>
+nnoremap <buffer> <Plug>(TasksMarkPriorityMedium) :call <SID>SetAttribute('priority', 'medium')<CR>
+nnoremap <buffer> <Plug>(TasksMarkPriorityHigh) :call <SID>SetAttribute('priority', 'high')<CR>
+nnoremap <buffer> <Plug>(TasksMarkPriorityCritical) :call <SID>SetAttribute('priority', 'critical')<CR>
+nnoremap <buffer> <Plug>(TasksSortTasks) :call <SID>SortTasks()<CR>
+nnoremap <buffer> <Plug>(TasksToggleTask) :call <SID>ToggleTask(-1)<CR>
+nnoremap <buffer> <Plug>(TasksToggleAndClearTask) :call <SID>ToggleTask(1)<CR>
 
-if !hasmapto('<Plug>(NewTaskDown)')
-  nmap <buffer> <localleader>n <Plug>(NewTaskDown)
+if !hasmapto('<Plug>(TasksNewTaskDown)')
+  nmap <buffer> <localleader>n <Plug>(TasksNewTaskDown)
 endif
 
-if !hasmapto('<Plug>(NewTaskUp)')
-  nmap <buffer> <localleader>N <Plug>(NewTaskUp)
+if !hasmapto('<Plug>(TasksNewTaskUp)')
+  nmap <buffer> <localleader>N <Plug>(TasksNewTaskUp)
 endif
 
-if !hasmapto('<Plug>(TaskBegin)')
-  nmap <buffer> <localleader>b <Plug>(TaskBegin)
+if !hasmapto('<Plug>(TaskBeginTask)')
+  nmap <buffer> <localleader>b <Plug>(TasksBeginTask)
 endif
 
-if !hasmapto('<Plug>(TaskComplete)')
-  nmap <buffer> <localleader>d <Plug>(TaskComplete)
+if !hasmapto('<Plug>(TasksCompleteTask)')
+  nmap <buffer> <localleader>d <Plug>(TasksCompleteTask)
 endif
 
-if !hasmapto('<Plug>(TaskCancel)')
-  nmap <buffer> <localleader>x <Plug>(TaskCancel)
+if !hasmapto('<Plug>(TasksCancelTask)')
+  nmap <buffer> <localleader>x <Plug>(TasksCancelTask)
 endif
 
-if !hasmapto('<Plug>(TasksArchive)')
-  nmap <buffer> <localleader>a <Plug>(TasksArchive)
+if !hasmapto('<Plug>(TasksArchiveTasks)')
+  nmap <buffer> <localleader>a <Plug>(TasksArchiveTasks)
 endif
 
-if !hasmapto('<Plug>(MarkPriorityLow)')
-  nmap <buffer> <localleader>ml <Plug>(MarkPriorityLow)
+if !hasmapto('<Plug>(TasksMarkPriorityLow)')
+  nmap <buffer> <localleader>ml <Plug>(TasksMarkPriorityLow)
 endif
 
-if !hasmapto('<Plug>(MarkPriorityMedium)')
-  nmap <buffer> <localleader>mm <Plug>(MarkPriorityMedium)
+if !hasmapto('<Plug>(TasksMarkPriorityMedium)')
+  nmap <buffer> <localleader>mm <Plug>(TasksMarkPriorityMedium)
 endif
 
-if !hasmapto('<Plug>(MarkPriorityHigh)')
-  nmap <buffer> <localleader>mh <Plug>(MarkPriorityHigh)
+if !hasmapto('<Plug>(TasksMarkPriorityHigh)')
+  nmap <buffer> <localleader>mh <Plug>(TasksMarkPriorityHigh)
 endif
 
-if !hasmapto('<Plug>(MarkPriorityCritical)')
-  nmap <buffer> <localleader>mc <Plug>(MarkPriorityCritical)
+if !hasmapto('<Plug>(TasksMarkPriorityCritical)')
+  nmap <buffer> <localleader>mc <Plug>(TasksMarkPriorityCritical)
 endif
 
-if !hasmapto('<Plug>(TasksSort)')
-  nmap <buffer> <localleader>S <Plug>(TasksSort)
+if !hasmapto('<Plug>(TasksSortTasks)')
+  nmap <buffer> <localleader>S <Plug>(TasksSortTasks)
 endif
 
-if !hasmapto('<Plug>(TaskToggle)')
-  nmap <buffer> <localleader>t <Plug>(TaskToggle)
+if !hasmapto('<Plug>(TasksToggleTask)')
+  nmap <buffer> <localleader>t <Plug>(TasksToggleTask)
 endif
 
-if !hasmapto('<Plug>(TaskToggleAndClear)')
-  nmap <buffer> <localleader>T <Plug>(TaskToggleAndClear)
+if !hasmapto('<Plug>(TasskToggleAndClearTask)')
+  nmap <buffer> <localleader>T <Plug>(TasksToggleAndClearTask)
 endif
 
 " GLOBALS
@@ -637,11 +637,12 @@ function! s:PasteTasks(targetLineNr, groupheaderTasks, lastPriority)
     call remove(l:groupheaderTasks[a:lastPriority], -1)
   endif
 
+  let l:noPriorityTasks = reverse(l:groupheaderTasks['none'])
   let l:lowPriorityTasks = reverse(l:groupheaderTasks['low'])
   let l:mediumPriorityTasks = reverse(l:groupheaderTasks['medium'])
   let l:highPriorityTasks = reverse(l:groupheaderTasks['high'])
   let l:criticalPriorityTasks = reverse(l:groupheaderTasks['critical'])
-  let l:allTasks = l:lowPriorityTasks + l:mediumPriorityTasks + l:highPriorityTasks + l:criticalPriorityTasks
+  let l:allTasks = l:noPriorityTasks + l:lowPriorityTasks + l:mediumPriorityTasks + l:highPriorityTasks + l:criticalPriorityTasks
 
   for l:task in l:allTasks
     call append(l:targetLineNr, l:task)
