@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.10.3
+" Version:	   0.10.4
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -244,7 +244,7 @@ function! s:BelongsToArchive(lineNumber)
 endfunc
 
 function! s:NewTask(direction)
-  let l:lineNumber = line('.') + a:direction
+  let l:lineNumber = line('.') + min([a:direction, 0])
   let l:project = s:GetProject(l:lineNumber)
 
   if l:project['lineNr'] == 0

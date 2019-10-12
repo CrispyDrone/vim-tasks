@@ -1,11 +1,9 @@
 documentation:
 	☐ Update 'Help' documentation to reflect changes and new features @priority(low)
-	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme?
+	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
 
 bug fixes:
-	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(medium)
 	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
-	☐ It's possible to create a task above the first group header when it is not on the first line @priority(low)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
@@ -19,15 +17,15 @@ testing:
 	☐ Find ways to automatically do regression testing, see vader? @priority(low)
 
 new features:
-	☐ Allow users to specify whether during sorting empty lines before the first task in a header, and in between tasks need to be removed @priority(low)
-	☐ Automatically move 'started' tasks to the top of the group header @priority(high)
-	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(high)
+	☐ Find a way to integrate with markdown? @priority(medium)
+	☐ Automatically move 'started' tasks to the top of the group header @priority(low)
+	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(low)
 	☐ Support dot command @priority(high)
 	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
-	☐ When changing from in progress to another state, it should add the 'worked' attribute @priority(medium)
 	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium)
 	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled) @priority(medium)
 	☐ Allow user to determine whether tasks need to be associated with a group header or not @priority(medium)
+	☐ Allow users to specify whether during sorting empty lines before the first task in a header, and in between tasks need to be removed @priority(low)
 	☐ Is it possible to support adding and removing attributes in a more general way? @priority(low)
 	☐ Add 'created' attribute (?) @priority(low)
 	☐ Add support for absolute due attribute (user will have to enter the date himself) @priority(low)
@@ -39,10 +37,12 @@ new features:
 	☐ Allow the unarchiving of all tasks @priority(low)
 	☐ Support visual selection mode for actions such as marking as done or cancelled, unarchiving, archiving, updating timestamps, transforming into task, sorting,,... @priority(low)
 	☐ Allow actions on group headers which will mark as done or cancelled, archive, unarchive, or update timestamps for all tasks belonging to that group header @priority(low)
-	☐ Allow actions on group headers which will mark as done or cancelled, archive, unarchive, or update timestamps for all tasks belonging to that group header @priority(low)
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(medium) @done(2019-10-12 21:08) @project(bug fixes) @worked(4min)
+	✓ It's possible to create a task above the first group header when it is not on the first line @priority(low) @done(2019-10-12 21:13) @project(bug fixes)
+	✓ When changing from in progress to another state, it should add the 'worked' attribute @priority(medium) @done(2019-10-12 19:47) @project(new features)
 	✓ When sorting tasks on priority, duplicates are sometimes created... It seems to happen when you have empty lines below the group header or in between tasks @priority(critical) @done(2019-10-12 19:39) @project(bug fixes) @worked(1h39min)
 	✓ Sorting tasks doesn't work when there's no archive section yet... ?? @priority(critical) @done(2019-10-12 18:20) @project(bug fixes) @worked(1min)
 	✓ Prevent cursor from moving when marking a task as done, cancelled, or started @priority(high) @done(2019-10-12 17:58) @project(bug fixes) @worked(1min)
