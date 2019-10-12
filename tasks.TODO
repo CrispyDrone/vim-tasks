@@ -4,7 +4,6 @@ documentation:
 
 bug fixes:
 	☐ When sorting tasks on priority, duplicates are sometimes created... It seems to happen when you have empty lines below the group header @priority(critical)
-	☐ Prevent cursor from moving when marking a task as done, cancelled, or started @priority(high)
 	☐ Currently it's necessary to always have at least one empty line before a nested group header, because otherwise it will result in a wrong indendation @priority(medium)
 	☐ You can copy paste a task above the Archive header, and then complete it @priority(low)
 	☐ It's possible to create a task above the first group header when it is not on the first line @priority(low)
@@ -41,6 +40,7 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Prevent cursor from moving when marking a task as done, cancelled, or started @priority(high) @done(2019-10-12 17:58) @project(bug fixes) @worked(1min)
 	✓ Update issue with 'after' directory in readme @done(2019-10-12 17:49) @project(documentation) @worked(1min)
 	✓ Update missing 'silent!' in 'after\ftplugin\tasks.vim` in readme? @done(2019-10-12 17:49) @project(documentation) @worked(1min)
 	✓ Fix worked attribute having 0 minutes in case you finish it in less than 1 minute. By default it should add 1 minute @priority(medium) @done(2019-10-12 17:53) @project(bug fixes)

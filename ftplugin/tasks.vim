@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.10.1
+" Version:	   0.10.2
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -411,6 +411,7 @@ function! s:GetProjectName(projectLine)
 endfunc
 
 function! s:MarkTaskAs(nextState, forceRemoveAttributes)
+  let l:cursorPosition = getcurpos()
   let l:nextState = a:nextState
   let l:line = getline('.')
   let l:isMatch = match(l:line, s:regTask) > -1
@@ -473,6 +474,7 @@ function! s:MarkTaskAs(nextState, forceRemoveAttributes)
       endif
     endif
   endif
+  call setpos('.', l:cursorPosition)
 endfunc
 
 function! s:GetTaskState(lineNumber)
