@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.90
+" Version:	   0.10.1
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -345,7 +345,7 @@ function! s:CalculateWorkedTime(...)
   let l:startedAsLocalTime = get(matchlist(l:started, ' / \(\d\+\)'), 1)
   let l:currentlyWorkedAsMinutes = get(matchlist(l:currentlyWorked, '\(\d\+\)h'), 1) * 60 + get(matchlist(l:currentlyWorked, '\(\d\+\)min'), 1)
 
-  let l:totalWorkedMinutes = l:currentlyWorkedAsMinutes + float2nr((ceil((localtime() - l:startedAsLocalTime)) / 60))
+  let l:totalWorkedMinutes = max([l:currentlyWorkedAsMinutes + float2nr(ceil((localtime() - l:startedAsLocalTime) / 60)), 1])
 
   let l:totalWorkedHours = l:totalWorkedMinutes / 60
   let l:totalWorkedMinutes = l:totalWorkedMinutes % 60

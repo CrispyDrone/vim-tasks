@@ -126,7 +126,7 @@ Below are all the exposed functions with their default bindings:
   + `<localleader>T`
   + Transform a task into a regular line and vice versa while also deleting any existing attributes.
 
-To define your own mappings, you have 2 options. Modify your `vimrc` or add a file `tasks.vim` inside the `after` directory (`.vim/after/`):
+To define your own mappings, you have 2 options. Modify your `vimrc` or add a file `tasks.vim` inside the `after` directory (`.vim/after/ftplugin`):
 
 + `vimrc`:
 
@@ -141,8 +141,8 @@ To define your own mappings, you have 2 options. Modify your `vimrc` or add a fi
 + `.vim/after/ftplugin/tasks.vim` (or `vimfiles/after/ftplugin/tasks.vim` on windows)
 
   ```
-  nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
-  nmap <buffer> <localleader>td <Plug>(NewTaskDown)
+  silent! nmap <buffer> <localleader>tu <Plug>(NewTaskUp)
+  silent! nmap <buffer> <localleader>td <Plug>(NewTaskDown)
   ```
 
 Anything marked with ¹ in the previous sections will hopefully be configurable in the future.
