@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 06, 2019
-" Version:	   0.80
+" Version:	   0.90
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -338,40 +338,31 @@ function! s:SetAttribute(name, value)
 endfunc
 
 function! s:CalculateWorkedTime(...)
-  let l:dateFormat=a:3
-  let l:started=a:1
-  let l:currentlyWorked=a:2
+  let l:dateFormat = a:3
+  let l:started = a:1
+  let l:currentlyWorked = a:2
 
-  let l:startedAsLocalTime = matchlist(l:started, ' / \(\d\+\)')[1]
-  if l:startedAsLocalTime == ''
-    return
+  let l:startedAsLocalTime = get(matchlist(l:started, ' / \(\d\+\)'), 1)
+  let l:currentlyWorkedAsMinutes = get(matchlist(l:currentlyWorked, '\(\d\+\)h'), 1) * 60 + get(matchlist(l:currentlyWorked, '\(\d\+\)min'), 1)
+
+  let l:totalWorkedMinutes = l:currentlyWorkedAsMinutes + float2nr((ceil((localtime() - l:startedAsLocalTime)) / 60))
+
+  let l:totalWorkedHours = l:totalWorkedMinutes / 60
+  let l:totalWorkedMinutes = l:totalWorkedMinutes % 60
+
+  let l:formattedTotalWorked = ''
+  if l:totalWorkedHours != 0
+    let l:formattedTotalWorked = l:totalWorkedHours . 'h'
   endif
 
-  "let l:startedAsLocalTime = s:GetLocalTimeFromString(l:dateFormat, l:started)
-  let l:totalWorked = l:currentlyWorked + (localtime() - l:startedAsLocalTime)
+  let l:formattedTotalWorked .= l:totalWorkedMinutes . 'min'
 
-  call s:SetAttribute('worked', string(l:totalWorked))
+  call s:SetAttribute('worked', l:formattedTotalWorked)
 endfunc
 
 function! s:AddStartedAttribute(dateFormat)
   return strftime(a:dateFormat) . ' / ' . localtime()
 endfunc
-
-"s:regParseTimeYears = '%Y'
-"s:regParseTimeDays = '%d'
-"s:regParseTimeMonths = '%m'
-"s:regParseTimeHours = '%H'
-"s:regParseTimeMinutes = '%M'
-"function! s:GetLocalTimeFromString(dateFormat, timeAsString)
-"  let l:time = strftime(a:dateFormat)
-"  let l:templateString = ''
-"  
-"  for l:char in split(a:timeAsString, '\zs')
-"
-"  endfor
-"
-"  return localtime() - 600
-"endfunc
 
 " returns a list of all projects a task is associated with. A task is
 " associated with its immediate parent project, but also all parent projects
@@ -464,7 +455,6 @@ function! s:MarkTaskAs(nextState, forceRemoveAttributes)
 	    call add(l:functionArguments, l:arguments[l:attributeFunctionArgument])
 	  endfor
 
-	  echo l:functionArguments
 	  let l:attributeValue = call(l:attributeConfiguration['function'], l:functionArguments)
 	  call s:AddAttribute(l:lineNumber, l:attribute, l:attributeValue)
 	endfor

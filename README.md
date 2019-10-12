@@ -46,7 +46,7 @@ You can use the following mapping `<localleader>S` to sort all tasks in the docu
 To quickly turn a line into a task or vice versa you can use the following mapping: `<localleader>t` or `<localleader>T`. The latter also removes any attributes that are present.
 
 ### Starting tasks
-Once you've created a task, you can optionally put it `in-progress` by executing `<localleader>b`. This can help remind you which tasks you were working on and when you started them. It accomplishes the latter by automatically adding a `started` attribute with the current time according to the specified date format.
+Once you've created a task, you can optionally put it `in-progress` by executing `<localleader>b`. This can help remind you which tasks you were working on and when you started them. It accomplishes the latter by automatically adding a `started` attribute with the current time according to the specified date format. For technical reasons it also adds a unix timestamp. This is required to be able to calculate the amount of time that has passed when marking a task as done or cancelled (see `worked` attribute). Ideally this woulnd't be necessary, but vim doesn't provide an api to parse a string back to a `{time}`.
 
 ### Completing tasks
 Once you've completed the task, you can mark it as `done` or `cancelled` by the following 2 mappings respectively: `<localleader>d` and `<localleader>x`. This will replace the checkbox by a checkmark `✓` in the former case, or by a cancellation mark `✘`.
@@ -63,6 +63,7 @@ As hinted at before, you can easily nest projects. A task is only associated wit
 ### Defaults and customization
 Below are the settings that you can currently customize together with their defaults:
 + `let g:TasksMarkerBase = '☐'`
++ `let g:TasksMarkerInProgress = '»'`
 + `let g:TasksMarkerDone = '✔'`
 + `let g:TasksMarkerCancelled = '✘'`
 + `let g:TasksDateFormat = '%Y-%m-%d %H:%M'`
@@ -82,6 +83,8 @@ Below are all the exposed functions with their default bindings:
 + `(TaskBegin)`: 
   + `<localleader>b`
   + Toggle current task between any status and the `in-progress` status.
+    + This adds the `started` attribute when the task is `in-progress`
+    + This adds the `worked` attribute when the task is no longer in progress.
 
 + `(TaskComplete)`: 
   + `<localleader>d`

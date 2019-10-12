@@ -20,7 +20,6 @@ refactoring:
 	☐ Would it be possible to not have this be a purely parsing based plugin, but instead have proper datastructures that get persisted to a file?? @priority(low)
 
 new features:
-	☐ Add a 'worked' attribute when a task is changed from 'inprogress' to any other state. This can help with tracking time. @priority(high)
 	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
 	☐ Automatically move 'started' tasks to the top of the group header @priority(high)
 	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(high)
@@ -44,6 +43,7 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Add a 'worked' attribute when a task is changed from 'inprogress' to any other state. This can help with tracking time. @priority(high) @done(2019-10-12 16:58) @project(new features) @worked(1h1min)
 	✓ Add support for new task state 'started' that will then add a 'started' attribute when in progress @priority(high) @done(2019-10-09 22:47) @project(new features)
 	✓ Prevent cursor from jumping when archiving tasks in case no tasks are archived (?) @priority(low) @done(2019-10-09 20:10) @project(bug fixes)
 	✓ Allow users to easily remap mappings @priority(high) @done(2019-10-06 22:42) @project(refactoring)
