@@ -1,12 +1,15 @@
 documentation:
+        ☐ Update readme for new functions to add and remove attributes  @priority(high)
 	☐ Finalize updating 'Help' file @priority(low)
 	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
 
 bug fixes:
+	☐ See issues with user input containing special characters for any task setting or attribute input @priority(high)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
 	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc @priority(high)
+	☐ Rename Get/RemoveAttribute since they take a line number whereas SetAttribute doesn't @priority(medium)
 	☐ Any state that's required by MarkTaskAs should be passed to it (see the arguments required for executing the functions necessary for adding attributes) @priority(medium)
 	☐ Change BelongsToProject to GetProject(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
 	☐ Change BelongsToArchive to GetArchive(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
@@ -16,16 +19,15 @@ testing:
 	☐ Find ways to automatically do regression testing, see vader? @priority(low)
 
 new features:
-	☐ Find a way to integrate with markdown? @priority(medium)
-	☐ Automatically move 'started' tasks to the top of the group header @priority(low)
-	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(low)
 	☐ Support dot command @priority(high)
+	☐ Find a way to integrate with markdown? @priority(medium)
 	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
 	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium)
 	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled) @priority(medium)
 	☐ Allow user to determine whether tasks need to be associated with a group header or not @priority(medium)
+	☐ Automatically move 'started' tasks to the top of the group header @priority(low)
+	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(low)
 	☐ Allow users to specify whether during sorting empty lines before the first task in a header, and in between tasks need to be removed @priority(low)
-	☐ Is it possible to support adding and removing attributes in a more general way? @priority(low)
 	☐ Add 'created' attribute (?) @priority(low)
 	☐ Add support for absolute due attribute (user will have to enter the date himself) @priority(low)
 	☐ Add support for relative due attribute (user will have to enter the date himself), this will also always add a 'from' attribute or something similar that indicates when the due attribute was added @priority(low)
@@ -39,6 +41,8 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+  ✓ Prevent empty attributes from being added @priority(high) @done(2019-10-14 00:31) @project(bug fixes)
+  ✓ Is it possible to support adding and removing attributes in a more general way? @priority(high) @done(2019-10-13 22:59) @project(new features)
 	✓ Bug when sorting tasks, first group header, task without priority is removed and duplicates are added ?? @priority(critical) @done(2019-10-13 00:25) @project(bug fixes)
 	✓ Update 'Help' documentation to reflect changes and new features @priority(low) @done(2019-10-13 00:10) @project(documentation)
 	✘ You can copy paste a task above the Archive header, and then complete it @priority(low) @cancelled(2019-10-12 21:18) @project(bug fixes)

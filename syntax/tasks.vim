@@ -22,7 +22,7 @@ unlet! b:current_syntax
 syn case match
 syn sync fromstart
 
-let b:regesc = '[]()?.*@='
+let b:regesc = '[]()?.*@=\'
 
 function! s:CreateMatch(name, regex)
   exec 'syn match ' . a:name . ' "' . a:regex . '" contained'

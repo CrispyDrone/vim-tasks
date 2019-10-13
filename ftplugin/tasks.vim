@@ -2,8 +2,8 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
-" Last Change: Oct 06, 2019
-" Version:	   0.11.0
+" Last Change: Oct 14, 2019
+" Version:	   0.12.0
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -25,6 +25,8 @@ nnoremap <buffer> <Plug>(TasksMarkPriorityCritical) :call <SID>SetAttribute('pri
 nnoremap <buffer> <Plug>(TasksSortTasks) :call <SID>SortTasks()<CR>
 nnoremap <buffer> <Plug>(TasksToggleTask) :call <SID>ToggleTask(-1)<CR>
 nnoremap <buffer> <Plug>(TasksToggleAndClearTask) :call <SID>ToggleTask(1)<CR>
+nnoremap <buffer> <Plug>(TasksSetAttribute) :call <SID>SetAttribute(input('name:'), input('value:'))<CR>
+nnoremap <buffer> <Plug>(TasksRemoveAttribute) :call <SID>RemoveAttribute(line('.'), input('name:'))<CR>
 
 if !hasmapto('<Plug>(TasksNewTaskDown)')
   nmap <buffer> <localleader>n <Plug>(TasksNewTaskDown)
@@ -47,7 +49,7 @@ if !hasmapto('<Plug>(TasksCancelTask)')
 endif
 
 if !hasmapto('<Plug>(TasksArchiveTasks)')
-  nmap <buffer> <localleader>a <Plug>(TasksArchiveTasks)
+  nmap <buffer> <localleader>A <Plug>(TasksArchiveTasks)
 endif
 
 if !hasmapto('<Plug>(TasksMarkPriorityLow)')
@@ -74,8 +76,16 @@ if !hasmapto('<Plug>(TasksToggleTask)')
   nmap <buffer> <localleader>t <Plug>(TasksToggleTask)
 endif
 
-if !hasmapto('<Plug>(TasskToggleAndClearTask)')
+if !hasmapto('<Plug>(TasksToggleAndClearTask)')
   nmap <buffer> <localleader>T <Plug>(TasksToggleAndClearTask)
+endif
+
+if !hasmapto('<Plug>(TasksSetAttribute)')
+  nmap <buffer> <localleader>a <Plug>(TasksSetAttribute)
+endif
+
+if !hasmapto('<Plug>(TasksRemoveAttribute)')
+  nmap <buffer> <localleader>r <Plug>(TasksRemoveAttribute)
 endif
 
 " GLOBALS
@@ -99,7 +109,7 @@ call s:initVariable('g:TasksAttributeMarker', '@')
 call s:initVariable('g:TasksArchiveSeparator', '＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿')
 call s:initVariable('g:TasksHeaderArchive', 'Archive')
 
-let b:regesc = '[]()?.*@='
+let b:regesc = '[]()?.*@=\'
 
 " LOCALS
 let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerInProgress, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
@@ -284,15 +294,15 @@ endfunc
 function! s:GetAttribute(lineNumber, name)
   let l:attribute = { 'name': '', 'start': -1, 'end': -1, 'value': '' }
   let l:rline = getline(a:lineNumber)
-  let l:regex = g:TasksAttributeMarker . a:name . '\((\([^)]*\))\)\='
-  let l:attStart = match(l:rline, regex)
+  let l:regex = g:TasksAttributeMarker . escape(a:name, b:regesc) . '\((\([^)]*\))\)\='
+  let l:attStart = match(l:rline, l:regex)
   if l:attStart > -1
     let l:attEnd = matchend(l:rline, l:regex)
     let l:attribute['name'] = a:name
     let l:attribute['start'] = l:attStart
     let l:attribute['end'] = l:attEnd
     let l:diff = (l:attEnd - l:attStart) + 1
-    let l:value = matchlist(l:rline, regex)[2]
+    let l:value = matchlist(l:rline, l:regex)[2]
     let l:attribute['value'] = l:value
   endif
   return l:attribute
@@ -315,23 +325,31 @@ function! s:RemoveAttribute(lineNumber, name)
   let l:attribute = s:GetAttribute(a:lineNumber, a:name)
   let l:attStart = l:attribute['start']
   if l:attStart > -1
+    let l:cursorPosition = getcurpos()
     let l:attEnd = l:attribute['end']
     let l:diff = (l:attEnd - l:attStart) + 1
     call cursor(line('.'), l:attStart)
     exec 'normal ' . l:diff . 'dl'
+    call setpos('.', l:cursorPosition)
   endif
 endfunc
 
 function! s:SetAttribute(name, value)
+  let l:name = s:Trim(a:name)
+
+  if len(l:name) == 0
+    return
+  endif
+
   let l:cursorPosition = getcurpos()
   let l:lineNr = line('.')
-  let l:attribute = s:GetAttribute(l:lineNr, a:name)
+  let l:attribute = s:GetAttribute(l:lineNr, l:name)
   if l:attribute['start'] == -1
-    call s:AddAttribute(l:lineNr, a:name, a:value)
+    call s:AddAttribute(l:lineNr, l:name, a:value)
   else
-    call s:RemoveAttribute(l:lineNr, a:name)
+    call s:RemoveAttribute(l:lineNr, l:name)
     if l:attribute['value'] !=# a:value
-      call s:AddAttribute(l:lineNr, a:name, a:value)
+      call s:AddAttribute(l:lineNr, l:name, a:value)
     endif
   endif
   call setpos('.', l:cursorPosition)
