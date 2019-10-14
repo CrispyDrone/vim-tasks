@@ -3,7 +3,7 @@
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
 " Last Change: Oct 14, 2019
-" Version:	   0.12.0
+" Version:	   0.12.1
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -25,7 +25,7 @@ nnoremap <buffer> <Plug>(TasksMarkPriorityCritical) :call <SID>SetAttribute('pri
 nnoremap <buffer> <Plug>(TasksSortTasks) :call <SID>SortTasks()<CR>
 nnoremap <buffer> <Plug>(TasksToggleTask) :call <SID>ToggleTask(-1)<CR>
 nnoremap <buffer> <Plug>(TasksToggleAndClearTask) :call <SID>ToggleTask(1)<CR>
-nnoremap <buffer> <Plug>(TasksSetAttribute) :call <SID>SetAttribute(input('name:'), input('value:'))<CR>
+nnoremap <buffer> <Plug>(TasksSetAttribute) :call <SID>SetAttributeInteractive()<CR>
 nnoremap <buffer> <Plug>(TasksRemoveAttribute) :call <SID>RemoveAttribute(line('.'), input('name:'))<CR>
 
 if !hasmapto('<Plug>(TasksNewTaskDown)')
@@ -293,12 +293,18 @@ endfunc
 " attribute doesn't exist, the start and end are -1.
 function! s:GetAttribute(lineNumber, name)
   let l:attribute = { 'name': '', 'start': -1, 'end': -1, 'value': '' }
+  let l:name = s:Trim(a:name)
+
+  if len(l:name) == 0
+    return l:attribute
+  endif
+
   let l:rline = getline(a:lineNumber)
-  let l:regex = g:TasksAttributeMarker . escape(a:name, b:regesc) . '\((\([^)]*\))\)\='
+  let l:regex = g:TasksAttributeMarker . escape(l:name, b:regesc) . '\((\([^)]*\))\)\='
   let l:attStart = match(l:rline, l:regex)
   if l:attStart > -1
     let l:attEnd = matchend(l:rline, l:regex)
-    let l:attribute['name'] = a:name
+    let l:attribute['name'] = l:name
     let l:attribute['start'] = l:attStart
     let l:attribute['end'] = l:attEnd
     let l:diff = (l:attEnd - l:attStart) + 1
@@ -341,6 +347,11 @@ function! s:SetAttribute(name, value)
     return
   endif
 
+  let l:istask = match(getline('.'), s:regTask) > -1
+  if l:istask == v:false
+    return
+  endif
+
   let l:cursorPosition = getcurpos()
   let l:lineNr = line('.')
   let l:attribute = s:GetAttribute(l:lineNr, l:name)
@@ -353,6 +364,24 @@ function! s:SetAttribute(name, value)
     endif
   endif
   call setpos('.', l:cursorPosition)
+endfunc
+
+function! s:SetAttributeInteractive()
+  let l:istask = match(getline('.'), s:regTask) > -1
+
+  if l:istask == v:false
+    return
+  endif
+
+  let l:attributeName = s:Trim(input('name:'))
+
+  if len(l:attributeName) == 0
+    return
+  endif
+
+  let l:attributeValue = input('value:')
+
+  call s:SetAttribute(l:attributeName, l:attributeValue)
 endfunc
 
 function! s:CalculateWorkedTime(...)

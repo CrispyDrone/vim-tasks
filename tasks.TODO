@@ -1,10 +1,16 @@
 documentation:
-        ☐ Update readme for new functions to add and remove attributes  @priority(high)
+        ☐ Update readme for new functions to add and remove attributes @priority(high)
 	☐ Finalize updating 'Help' file @priority(low)
 	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
 
 bug fixes:
+	☐ Currently you can't add any whitespace after a project header, or it will lose its syntax highlighting @priority(critical)
+	✓ When removing an attribute, and not inputting anything, it will remove a space between the end of the task description and the first attribute... @priority(critical) @done(2019-10-14 22:38) @project(bug fixes)
+	✓ Currently it is possible to add attributes to non-task lines @priority(high) @done(2019-10-14 22:25) @project(bug fixes)
+	✓ Allow the action of adding an attribute to be cancelled with a single escape key @done(2019-10-14 22:28) @project(bug fixes)
 	☐ See issues with user input containing special characters for any task setting or attribute input @priority(high)
+	☐ Is there a way to still let a user prevent adding an attribute when inputting the value, using the <ESC> key? @priority(medium)
+	☐ Is there a way to prevent undo from jumping to the attribute you just added? @priority(low)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
