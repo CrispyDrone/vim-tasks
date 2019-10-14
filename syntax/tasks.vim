@@ -43,7 +43,7 @@ exec 'syn match tCriticalPriority "' . g:TasksAttributeMarker . 'priority(critic
 syn region tTask start=/^\s*/ end=/$/ oneline keepend contains=tMarker,tAttribute, tLowPriority, tMediumPriority, tHighPriority, tCriticalPriority
 exec 'syn region tTaskDone start="^[\s]*.*'.g:TasksAttributeMarker.'done" end=/$/ oneline contains=tMarkerComplete,tAttributeCompleted'
 exec 'syn region tTaskCancelled start="^[\s]*.*'.g:TasksAttributeMarker.'cancelled" end=/$/ oneline contains=tMarkerCancelled,tAttributeCompleted'
-syn match tProject "^\s*.*:$"
+syn match tProject "^\s*.*:\s*$"
 
 hi def link tMarker Comment
 hi def link tMarkerComplete String

@@ -4,10 +4,7 @@ documentation:
 	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
 
 bug fixes:
-	☐ Currently you can't add any whitespace after a project header, or it will lose its syntax highlighting @priority(critical)
-	✓ When removing an attribute, and not inputting anything, it will remove a space between the end of the task description and the first attribute... @priority(critical) @done(2019-10-14 22:38) @project(bug fixes)
-	✓ Currently it is possible to add attributes to non-task lines @priority(high) @done(2019-10-14 22:25) @project(bug fixes)
-	✓ Allow the action of adding an attribute to be cancelled with a single escape key @done(2019-10-14 22:28) @project(bug fixes)
+	☐ Currently a task ending in a colon optionally followed by whitespace will result in highlighting as if it's a project header
 	☐ See issues with user input containing special characters for any task setting or attribute input @priority(high)
 	☐ Is there a way to still let a user prevent adding an attribute when inputting the value, using the <ESC> key? @priority(medium)
 	☐ Is there a way to prevent undo from jumping to the attribute you just added? @priority(low)
@@ -47,6 +44,10 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Currently you can't add any whitespace after a project header, or it will lose its syntax highlighting @priority(critical) @done(2019-10-14 22:48) @project(bug fixes)
+	✓ When removing an attribute, and not inputting anything, it will remove a space between the end of the task description and the first attribute... @priority(critical) @done(2019-10-14 22:38) @project(bug fixes)
+	✓ Currently it is possible to add attributes to non-task lines @priority(high) @done(2019-10-14 22:25) @project(bug fixes)
+	✓ Allow the action of adding an attribute to be cancelled with a single escape key @done(2019-10-14 22:28) @project(bug fixes)
   ✓ Prevent empty attributes from being added @priority(high) @done(2019-10-14 00:31) @project(bug fixes)
   ✓ Is it possible to support adding and removing attributes in a more general way? @priority(high) @done(2019-10-13 22:59) @project(new features)
 	✓ Bug when sorting tasks, first group header, task without priority is removed and duplicates are added ?? @priority(critical) @done(2019-10-13 00:25) @project(bug fixes)
