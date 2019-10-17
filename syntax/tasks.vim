@@ -2,8 +2,8 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Previous Maintainer: Chris Rolfs
-" Last Change: Oct 4, 2019
-" Version:	   0.20
+" Last Change: Oct 17, 2019
+" Version:	   0.20.1
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if version < 600
@@ -28,6 +28,9 @@ function! s:CreateMatch(name, regex)
   exec 'syn match ' . a:name . ' "' . a:regex . '" contained'
 endfunc
 
+let s:regMarker = join([escape(g:TasksMarkerBase, b:regesc), escape(g:TasksMarkerInProgress, b:regesc), escape(g:TasksMarkerDone, b:regesc), escape(g:TasksMarkerCancelled, b:regesc)], '\|')
+let s:regProject = '^\(\s*\)\(\(.*' . s:regMarker . '.*\)\@!.\)\+:\s*$'
+
 
 call s:CreateMatch('tMarker', '^\s*' . escape(g:TasksMarkerBase, b:regesc))
 call s:CreateMatch('tMarkerCancelled', '^\s*' . escape(g:TasksMarkerCancelled, b:regesc))
@@ -43,7 +46,8 @@ exec 'syn match tCriticalPriority "' . g:TasksAttributeMarker . 'priority(critic
 syn region tTask start=/^\s*/ end=/$/ oneline keepend contains=tMarker,tAttribute, tLowPriority, tMediumPriority, tHighPriority, tCriticalPriority
 exec 'syn region tTaskDone start="^[\s]*.*'.g:TasksAttributeMarker.'done" end=/$/ oneline contains=tMarkerComplete,tAttributeCompleted'
 exec 'syn region tTaskCancelled start="^[\s]*.*'.g:TasksAttributeMarker.'cancelled" end=/$/ oneline contains=tMarkerCancelled,tAttributeCompleted'
-syn match tProject "^\s*.*:\s*$"
+"syn match tProject "^\s*.*:\s*$"
+exec 'syn match tProject "' . s:regProject . '"'
 
 hi def link tMarker Comment
 hi def link tMarkerComplete String

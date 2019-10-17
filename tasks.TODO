@@ -1,37 +1,36 @@
 documentation:
-        ☐ Update readme for new functions to add and remove attributes @priority(high)
-	☐ Finalize updating 'Help' file @priority(low)
-	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low)
+        ☐ Update readme for new functions to add and remove attributes @priority(high) @v1
+	☐ Finalize updating 'Help' file @priority(low) @v1
+	☐ Add 'change notes' and 'roadmap' or 'towards the future' section in readme? @priority(low) @v1
 
 bug fixes:
-	☐ Currently a task ending in a colon optionally followed by whitespace will result in highlighting as if it's a project header
-	☐ See issues with user input containing special characters for any task setting or attribute input @priority(high)
-	☐ Is there a way to still let a user prevent adding an attribute when inputting the value, using the <ESC> key? @priority(medium)
+	☐ See issues with user input containing special characters for any task setting or attribute input @priority(high) @v1
+	☐ is there a way to still let a user prevent adding an attribute when inputting the value, using the <ESC> key? @priority(medium)
 	☐ Is there a way to prevent undo from jumping to the attribute you just added? @priority(low)
 	☐ Prevent modification of buffer if no sorting needs to happen (?) @priority(low)
 
 refactoring:
-	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc @priority(high)
-	☐ Rename Get/RemoveAttribute since they take a line number whereas SetAttribute doesn't @priority(medium)
-	☐ Any state that's required by MarkTaskAs should be passed to it (see the arguments required for executing the functions necessary for adding attributes) @priority(medium)
-	☐ Change BelongsToProject to GetProject(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
-	☐ Change BelongsToArchive to GetArchive(lineNumber, direction) which returns a tuple/dictionary type object @priority(low)
+	☐ You need a function that's responsible for "reading" a line. Every other function will work with this "line datastructure" that already has a state associated with it etc @priority(high) @v1
+	☐ Rename Get/RemoveAttribute since they take a line number whereas SetAttribute doesn't @priority(medium) @v1
+	☐ Any state that's required by MarkTaskAs should be passed to it (see the arguments required for executing the functions necessary for adding attributes) @priority(medium) @v1
+	☐ Change BelongsToProject to GetProject(lineNumber, direction) which returns a tuple/dictionary type object @priority(low) @v1
+	☐ Change BelongsToArchive to GetArchive(lineNumber, direction) which returns a tuple/dictionary type object @priority(low) @v1
 	☐ Would it be possible to not have this be a purely parsing based plugin, but instead have proper datastructures that get persisted to a file?? @priority(low)
 
 testing:
-	☐ Find ways to automatically do regression testing, see vader? @priority(low)
+	☐ Find ways to automatically do regression testing, see vader? @priority(low) @v1
 
 new features:
 	☐ Support dot command @priority(high)
-	☐ Find a way to integrate with markdown? @priority(medium)
-	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium)
-	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium)
+	☐ Find a way to integrate with markdown? @priority(medium) @v1
+	☐ Support commands (capitalized version of mappings), that will remove the 'worked' attribute (and others?) @priority(medium) @v1
+	☐ Generalize sorting by attribute (allow user to specify a sorting lambda) @priority(medium) @v1
 	☐ Add support for "filtering tasks" which will extract all tasks matching a filter (adding project attribute or not) and putting it in the current cursor's location (has to be under a group header or not). This could be useful to for example to get all tasks due tomorrow to the top of the file (when group header validation is disabled) @priority(medium)
 	☐ Allow user to determine whether tasks need to be associated with a group header or not @priority(medium)
 	☐ Automatically move 'started' tasks to the top of the group header @priority(low)
 	☐ Allow user to customize whether 'started' tasks should be moved to top automatically @priority(low)
 	☐ Allow users to specify whether during sorting empty lines before the first task in a header, and in between tasks need to be removed @priority(low)
-	☐ Add 'created' attribute (?) @priority(low)
+	☐ Add 'created' attribute (?) @priority(low) @v1
 	☐ Add support for absolute due attribute (user will have to enter the date himself) @priority(low)
 	☐ Add support for relative due attribute (user will have to enter the date himself), this will also always add a 'from' attribute or something similar that indicates when the due attribute was added @priority(low)
 	☐ Find out ways to allow for 'tab' completion of dates? @priority(low)
@@ -44,6 +43,7 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Currently a task ending in a colon optionally followed by whitespace will result in highlighting as if it's a project header @v1 @done(2019-10-17 22:53) @project(bug fixes)
 	✓ Currently you can't add any whitespace after a project header, or it will lose its syntax highlighting @priority(critical) @done(2019-10-14 22:48) @project(bug fixes)
 	✓ When removing an attribute, and not inputting anything, it will remove a space between the end of the task description and the first attribute... @priority(critical) @done(2019-10-14 22:38) @project(bug fixes)
 	✓ Currently it is possible to add attributes to non-task lines @priority(high) @done(2019-10-14 22:25) @project(bug fixes)
