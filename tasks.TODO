@@ -43,6 +43,7 @@ new features:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✓ Archiving doesn't work properly when file doesn't end in new line @done(2020-04-29 00:30) @project(bug fixes)
 	✓ Currently a task ending in a colon optionally followed by whitespace will result in highlighting as if it's a project header @v1 @done(2019-10-17 22:53) @project(bug fixes)
 	✓ Currently you can't add any whitespace after a project header, or it will lose its syntax highlighting @priority(critical) @done(2019-10-14 22:48) @project(bug fixes)
 	✓ When removing an attribute, and not inputting anything, it will remove a space between the end of the task description and the first attribute... @priority(critical) @done(2019-10-14 22:38) @project(bug fixes)

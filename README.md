@@ -185,3 +185,10 @@ Run the following in a terminal:
 
     cd ~/.vim/bundle
     git clone https://github.com/crispydrone/vim-tasks
+
+## Roadmap
+### v1.0
+
+## Changelog
+### 0.12.2 
++ Fixed issue where a task that's on the last line of a file that doesn't end in a new line wouldn't get archived

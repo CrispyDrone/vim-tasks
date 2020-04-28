@@ -2,8 +2,8 @@
 " Language:    Tasks
 " Maintainer:  CrispyDrone
 " Previous Maintainer:  Chris Rolfs
-" Last Change: Oct 14, 2019
-" Version:	   0.12.1
+" Last Change: April 29, 2020
+" Version:	   0.12.2
 " URL:         https://github.com/CrispyDrone/vim-tasks
 
 if exists("b:loaded_tasks")
@@ -573,9 +573,9 @@ function! s:TasksArchive()
   let l:savedCursorPosition = getcurpos()
   let l:archiveLine = -1
   let l:completedTasks = []
-  let l:lineNr = 0
+  let l:lineNr = 1
   let l:lastLine = line('$')
-  while l:lineNr < l:lastLine
+  while l:lineNr <= l:lastLine
     let l:line = getline(l:lineNr)
     let l:isCompleted = s:IsCompleted(l:line)
     let l:projectMatch = matchstr(l:line, s:regProject)
