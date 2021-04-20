@@ -261,16 +261,21 @@ function! s:NewTask(direction)
     return
   endif
 
-  let l:indendation = matchlist(l:project['line'], s:regProject)[1]
+  let l:indentation = matchlist(l:project['line'], s:regProject)[1]
   let l:text = g:TasksMarkerBase . ' '
 
+  let l:smartindent = &smartindent
+  setlocal nosmartindent
+
   if a:direction == -1
-    exec 'normal O' . l:indendation . l:text
+    exec 'normal O' . l:indentation . l:text
   else
-    exec 'normal o' . l:indendation . l:text
+    exec 'normal o' . l:indentation . l:text
   endif
 
   exec 'normal >>'
+
+  let &smartindent = l:smartindent
 
   startinsert!
 endfunc
