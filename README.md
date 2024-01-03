@@ -190,5 +190,10 @@ Run the following in a terminal:
 ### v1.0
 
 ## Changelog
+### 0.12.3
+
++ Fixed issue where `syntax/tasks.vim` could load before `plugin/tasks.vim`
+
 ### 0.12.2 
+
 + Fixed issue where a task that's on the last line of a file that doesn't end in a new line wouldn't get archived

@@ -12,8 +12,10 @@ elseif exists("b:current_syntax")
   finish
 endif
 
-if !exists("main_syntax")
-  let main_syntax = 'tasks'
+" note: For some reason syntax/tasks.vim is loaded before the plugin/tasks.vim file on my new ubuntu pc
+if !exists("b:loaded_tasks")
+  let path = expand('<sfile>:p:h:h')
+  exec 'source' path . '/ftplugin/tasks.vim'
 endif
 
 silent! syntax include @markdown syntax/markdown.vim
